@@ -1,29 +1,31 @@
-.ai-spark-path {
-  will-change: transform, opacity;
-  transform-origin: center;
-  animation: sparkMorph 1.6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+.ai-spark-loader {
+  width: 48px;
+  height: 48px;
+  color: #E0664C;
 }
 
-.ai-spark-path:nth-child(1) { animation-delay: 0ms; }
-.ai-spark-path:nth-child(2) { animation-delay: 200ms; }
-.ai-spark-path:nth-child(3) { animation-delay: 400ms; }
-.ai-spark-path:nth-child(4) { animation-delay: 600ms; }
-.ai-spark-path:nth-child(5) { animation-delay: 800ms; }
-.ai-spark-path:nth-child(6) { animation-delay: 1000ms; }
-.ai-spark-path:nth-child(7) { animation-delay: 1200ms; }
-.ai-spark-path:nth-child(8) { animation-delay: 1400ms; }
+.ai-spark-loader .ray {
+  transform-origin: 50px 50px;
+  animation: spark-pulse 1.2s infinite cubic-bezier(0.4, 0, 0.2, 1);
+  opacity: 0.2;
+}
 
-@keyframes sparkMorph {
+.ai-spark-loader .r1 { animation-delay: 0.00s; }
+.ai-spark-loader .r2 { animation-delay: 0.15s; }
+.ai-spark-loader .r3 { animation-delay: 0.30s; }
+.ai-spark-loader .r4 { animation-delay: 0.45s; }
+.ai-spark-loader .r5 { animation-delay: 0.60s; }
+.ai-spark-loader .r6 { animation-delay: 0.75s; }
+.ai-spark-loader .r7 { animation-delay: 0.90s; }
+.ai-spark-loader .r8 { animation-delay: 1.05s; }
+
+@keyframes spark-pulse {
   0%, 100% {
-    opacity: 0.25;
-    transform: scale(0.55);
+    opacity: 0.2;
+    transform: scale(0.7);
   }
   50% {
     opacity: 1;
-    transform: scale(1);
+    transform: scale(1.1);
   }
-}
-
-.ai-spark-sm .ai-spark-path {
-  animation-duration: 1.4s;
 }

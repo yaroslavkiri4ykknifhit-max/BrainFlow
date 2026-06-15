@@ -3,7 +3,7 @@ import { Mic, MicOff, CheckCircle2 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { useNavigate } from "react-router";
 import { processThought } from "../../lib/supabase";
-import { BrainFlowLogo } from "../components/BrainFlowLogo";
+import { SparkLoader } from "../components/SparkLoader";
 
 export function BrainDumpView() {
   const [text, setText] = useState("");
@@ -105,7 +105,7 @@ export function BrainDumpView() {
             className={`absolute bottom-2 right-0 w-8 h-8 flex items-center justify-center rounded-full transition-all duration-200 transform-gpu will-change-transform ${
               isRecording
                 ? "text-[#ff4d4f] animate-pulse bg-red-50"
-                : "text-zinc-400 hover:text-zinc-600"
+                : "text-[#aaa] hover:text-[#666]"
             }`}
             style={{ transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)" }}
           >
@@ -138,10 +138,10 @@ export function BrainDumpView() {
             >
               <button
                 onClick={handleProcess}
-                className="group flex items-center gap-3 px-6 py-3.5 bg-[#D97757] text-white font-medium rounded-full shadow-lg shadow-[#D97757]/20 hover:bg-[#C86444] hover:shadow-xl hover:shadow-[#D97757]/30 transition-all duration-200 transform-gpu will-change-transform active:scale-95"
+                className="group flex items-center gap-3 px-6 py-3.5 bg-[#E0664C] text-white font-medium rounded-full shadow-lg shadow-[#E0664C]/20 hover:bg-[#c95a42] hover:shadow-xl hover:shadow-[#E0664C]/30 transition-all duration-200 transform-gpu will-change-transform active:scale-95"
                 style={{ transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)" }}
               >
-                <BrainFlowLogo size={16} className="brightness-0 invert" />
+                <SparkLoader size={16} className="brightness-0 invert" />
                 <span>Process</span>
                 <div className="hidden md:flex items-center gap-1 text-[10px] font-sans ml-2 bg-white/20 px-2 py-0.5 rounded-full">
                   <span className="font-mono">⌘</span>
@@ -162,7 +162,7 @@ export function BrainDumpView() {
               className="fixed md:absolute bottom-20 md:bottom-0 right-6 md:right-0"
             >
               <div className="flex items-center gap-3 px-6 py-3.5 bg-white border border-zinc-200 text-[#222] font-medium rounded-full shadow-sm">
-                <BrainFlowLogo size={18} className="brainflow-logo-micro" />
+                <SparkLoader size={18} />
                 <span>Sorting chaos...</span>
               </div>
             </motion.div>

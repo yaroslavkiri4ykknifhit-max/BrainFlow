@@ -1,54 +1,26 @@
 interface SparkLoaderProps {
   size?: number;
-  color?: string;
   className?: string;
 }
 
-export function SparkLoader({ size = 48, color = "#D97757", className = "" }: SparkLoaderProps) {
-  const strokeWidth = size > 32 ? 2.5 : 2;
-  const center = size / 2;
-  const armLength = size * 0.38;
-
-  const arms = [
-    { angle: 0 },
-    { angle: 45 },
-    { angle: 90 },
-    { angle: 135 },
-    { angle: 180 },
-    { angle: 225 },
-    { angle: 270 },
-    { angle: 315 },
-  ];
-
+export function SparkLoader({ size = 48, className = "" }: SparkLoaderProps) {
   return (
     <svg
-      width={size}
-      height={size}
-      viewBox={`0 0 ${size} ${size}`}
-      fill="none"
-      className={className}
-      aria-hidden="true"
+      viewBox="0 0 100 100"
+      className={`ai-spark-loader ${className}`}
+      xmlns="http://www.w3.org/2000/svg"
+      style={{ width: size, height: size }}
     >
-      {arms.map((arm, i) => {
-        const rad = (arm.angle * Math.PI) / 180;
-        const x1 = center + Math.cos(rad) * (size * 0.12);
-        const y1 = center + Math.sin(rad) * (size * 0.12);
-        const x2 = center + Math.cos(rad) * armLength;
-        const y2 = center + Math.sin(rad) * armLength;
-        return (
-          <line
-            key={i}
-            className="ai-spark-path"
-            x1={x1}
-            y1={y1}
-            x2={x2}
-            y2={y2}
-            stroke={color}
-            strokeWidth={strokeWidth}
-            strokeLinecap="round"
-          />
-        );
-      })}
+      <g stroke="currentColor" stroke-width="8" stroke-linecap="round">
+        <line x1="50" y1="12" x2="50" y2="30" className="ray r1" />
+        <line x1="76.8" y1="23.2" x2="64.1" y2="35.9" className="ray r2" />
+        <line x1="88" y1="50" x2="70" y2="50" className="ray r3" />
+        <line x1="76.8" y1="76.8" x2="64.1" y2="64.1" className="ray r4" />
+        <line x1="50" y1="88" x2="50" y2="70" className="ray r5" />
+        <line x1="23.2" y1="76.8" x2="35.9" y2="64.1" className="ray r6" />
+        <line x1="12" y1="50" x2="30" y2="50" className="ray r7" />
+        <line x1="23.2" y1="23.2" x2="35.9" y2="35.9" className="ray r8" />
+      </g>
     </svg>
   );
 }
