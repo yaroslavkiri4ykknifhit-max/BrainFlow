@@ -1,173 +1,151 @@
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router";
-import { clsx } from "clsx";
+import { motion, AnimatePresence } from "motion/react";
+import { SparkLoader } from "./SparkLoader";
 
 interface NavItem {
   label: string;
   path: string;
+  color: string;
 }
 
 const navItems: NavItem[] = [
-  { label: "FOCUS", path: "/" },
-  { label: "DUMP", path: "/dump" },
-  { label: "BACKLOG", path: "/backlog" },
+  { label: "FOCUS", path: "/", color: "#1A1A1A" },
+  { label: "DUMP", path: "/dump", color: "#1A1A1A" },
+  { label: "BACKLOG", path: "/backlog", color: "#1A1A1A" },
 ];
 
 export function BottomNav() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [activeLabel, setActiveLabel] = useState<string | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
 
+  const currentPage = navItems.find((item) => item.path === location.pathname)?.label || "FOCUS";
+
+  const handleSelect = useCallback((path: string, label: string) => {
+    setActiveLabel(label);
+    navigate(path);
+    setIsOpen(false);
+
+    setTimeout(() => {
+      setActiveLabel(null);
+    }, 3000);
+  }, [navigate]);
+
+  const toggleMenu = () => {
+    setIsOpen(!isOpen);
+  };
+
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 pb-[env(safe-area-inset-bottom)]">
-      <div className="flex justify-center px-4">
+    <div className="fixed bottom-0 left-0 right-0 z-50 flex justify-center pb-[env(safe-area-inset-bottom)]">
+      <div className="relative" style={{ width: 146, height: 255 }}>
         <svg
-          width="100%"
-          height="76"
-          viewBox="0 0 501 124"
+          width="146"
+          height="255"
+          viewBox="0 0 146 255"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
-          className="max-w-[500px]"
-          style={{ filter: "drop-shadow(0 8px 40px rgba(0,0,0,0.12))" }}
+          className="absolute bottom-0"
         >
-          {/* Background pill */}
-          <g filter="url(#filter0_d_1_55)">
-            <path
-              d="M40 54C40 41.8497 49.8497 32 62 32H439C451.15 32 461 41.8497 461 54V54C461 66.1503 451.15 76 439 76H62C49.8497 76 40 66.1503 40 54V54Z"
-              fill="#262626"
-              style={{ mixBlendMode: "color-dodge" }}
-              shapeRendering="crispEdges"
-            />
-            <path
-              d="M40 54C40 41.8497 49.8497 32 62 32H439C451.15 32 461 41.8497 461 54V54C461 66.1503 451.15 76 439 76H62C49.8497 76 40 66.1503 40 54V54Z"
-              fill="#F5F5F5"
-              fillOpacity="0.6"
-              shapeRendering="crispEdges"
-            />
-          </g>
-          <path
-            d="M40 54C40 41.8497 49.8497 32 62 32H439C451.15 32 461 41.8497 461 54V54C461 66.1503 451.15 76 439 76H62C49.8497 76 40 66.1503 40 54V54Z"
-            fill="black"
-            fillOpacity="0.01"
-          />
-
-          {/* Navigation text items */}
-          {navItems.map((item, index) => {
-            const isActive = location.pathname === item.path;
-            const xPositions = [61.3477, 124.348, 187.348, 250.348];
-            const x = xPositions[index];
-
-            return (
-              <g key={item.path}>
-                {/* Clickable area */}
-                <rect
-                  x={x - 10}
-                  y={36}
-                  width={65}
-                  height={36}
-                  fill="transparent"
-                  className="cursor-pointer"
-                  onClick={() => navigate(item.path)}
-                />
-                {/* Text - we'll use foreignObject for proper text rendering */}
-              </g>
-            );
-          })}
-
-          {/* FOCUS text */}
-          <text
-            x="93"
-            y="59"
-            fontFamily="monospace"
-            fontSize="14"
-            fontWeight="600"
-            letterSpacing="0.05em"
-            fill={location.pathname === "/" ? "#E0664C" : "#1A1A1A"}
-            className="cursor-pointer"
-            onClick={() => navigate("/")}
-          >
-            FOCUS
-          </text>
-
-          {/* Separator 1 */}
-          <rect x="106" y="45" width="1" height="18" fill="#CCCCCC" />
-
-          {/* DUMP text */}
-          <text
-            x="147"
-            y="59"
-            fontFamily="monospace"
-            fontSize="14"
-            fontWeight="600"
-            letterSpacing="0.05em"
-            fill={location.pathname === "/dump" ? "#E0664C" : "#1A1A1A"}
-            className="cursor-pointer"
-            onClick={() => navigate("/dump")}
-          >
-            DUMP
-          </text>
-
-          {/* Separator 2 */}
-          <rect x="169" y="45" width="1" height="18" fill="#CCCCCC" />
-
-          {/* BACKLOG text */}
-          <text
-            x="210"
-            y="59"
-            fontFamily="monospace"
-            fontSize="14"
-            fontWeight="600"
-            letterSpacing="0.05em"
-            fill={location.pathname === "/backlog" ? "#E0664C" : "#1A1A1A"}
-            className="cursor-pointer"
-            onClick={() => navigate("/backlog")}
-          >
-            BACKLOG
-          </text>
-
-          {/* Separator 3 */}
-          <rect x="295" y="45" width="1" height="18" fill="#CCCCCC" />
-
-          {/* STATS text (placeholder - no route yet) */}
-          <text
-            x="336"
-            y="59"
-            fontFamily="monospace"
-            fontSize="14"
-            fontWeight="600"
-            letterSpacing="0.05em"
-            fill="#1A1A1A"
-            opacity="0.4"
-          >
-            STATS
-          </text>
-
-          {/* Separator 4 */}
-          <rect x="358" y="45" width="1" height="18" fill="#CCCCCC" />
-
-          {/* Back button */}
-          <g
-            className="cursor-pointer"
-            onClick={() => navigate(-1)}
-          >
-            <rect x="421" y="36" width="36" height="36" rx="18" fill="#EDEDED" />
-            <path
-              d="M443.819 53.7119C443.819 53.8584 443.79 53.9976 443.731 54.1294C443.678 54.2563 443.59 54.3784 443.468 54.4956L437.835 60.0107C437.645 60.1963 437.413 60.2891 437.14 60.2891C436.964 60.2891 436.8 60.2451 436.649 60.1572C436.498 60.0693 436.375 59.9521 436.283 59.8057C436.195 59.6592 436.151 59.4932 436.151 59.3076C436.151 59.0391 436.253 58.7998 436.458 58.5898L441.476 53.7119L436.458 48.834C436.253 48.6289 436.151 48.3896 436.151 48.1162C436.151 47.9355 436.195 47.772 436.283 47.6255C436.375 47.4741 436.498 47.3545 436.649 47.2666C436.8 47.1787 436.964 47.1348 437.14 47.1348C437.413 47.1348 437.645 47.2275 437.835 47.4131L443.468 52.9282C443.585 53.0454 443.673 53.1675 443.731 53.2944C443.79 53.4214 443.819 53.5605 443.819 53.7119Z"
-              fill="#1A1A1A"
-            />
-          </g>
-
-          {/* Drop shadow filter */}
           <defs>
-            <filter id="filter0_d_1_55" x="0" y="0" width="501" height="124" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
+            <clipPath id="clip0_1_296">
+              <path d="M22 28C22 12.536 34.536 0 50 0H107C122.464 0 135 12.536 135 28V28C135 43.464 122.464 56 107 56H50C34.536 56 22 43.464 22 28V28Z" fill="white" />
+            </clipPath>
+            <clipPath id="clip1_1_296">
+              <path d="M0 88C0 72.536 12.536 60 28 60H107C122.464 60 135 72.536 135 88V88C135 103.464 122.464 116 107 116H28C12.536 116 0 103.464 0 88V88Z" fill="white" />
+            </clipPath>
+            <clipPath id="clip2_1_296">
+              <path d="M17 148C17 132.536 29.536 120 45 120H107C122.464 120 135 132.536 135 148V148C135 163.464 122.464 176 107 176H45C29.536 176 17 163.464 17 148V148Z" fill="white" />
+            </clipPath>
+            <clipPath id="clip3_1_296">
+              <path d="M79 212C79 196.536 91.536 184 107 184V184C122.464 184 135 196.536 135 212V212C135 227.464 122.464 240 107 240V240C91.536 240 79 227.464 79 212V212Z" fill="white" />
+            </clipPath>
+            <filter id="filter0_dd_1_296" x="68" y="177" width="78" height="78" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
               <feFlood floodOpacity="0" result="BackgroundImageFix" />
               <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha" />
-              <feOffset dy="8" />
-              <feGaussianBlur stdDeviation="20" />
-              <feComposite in2="hardAlpha" operator="out" />
-              <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.12 0" />
-              <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_1_55" />
-              <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_1_55" result="shape" />
+              <feOffset dy="1" />
+              <feGaussianBlur stdDeviation="1.5" />
+              <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.3 0" />
+              <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_1_296" />
+              <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha" />
+              <feMorphology radius="3" operator="dilate" in="SourceAlpha" result="effect2_dropShadow_1_296" />
+              <feOffset dy="4" />
+              <feGaussianBlur stdDeviation="4" />
+              <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.15 0" />
+              <feBlend mode="normal" in2="effect1_dropShadow_1_296" result="effect2_dropShadow_1_296" />
+              <feBlend mode="normal" in="SourceGraphic" in2="effect2_dropShadow_1_296" result="shape" />
             </filter>
           </defs>
+
+          {/* Menu items */}
+          <AnimatePresence>
+            {isOpen && navItems.map((item, index) => {
+              const y = index * 60;
+              const isTop = index === 0;
+              const isBottom = index === navItems.length - 1;
+              const clipId = `clip${index}_1_296`;
+              const isActive = location.pathname === item.path;
+
+              return (
+                <motion.g
+                  key={item.path}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 20 }}
+                  transition={{ duration: 0.2, delay: index * 0.05 }}
+                  className="cursor-pointer"
+                  onClick={() => handleSelect(item.path, item.label)}
+                >
+                  <g clipPath={`url(#${clipId})`}>
+                    <rect
+                      width={isTop ? 113 : isBottom ? 118 : 135}
+                      height="56"
+                      transform={`translate(${isTop ? 22 : isBottom ? 17 : 0}, ${y})`}
+                      fill={isActive ? "#E0664C" : "#EADDFF"}
+                    />
+                  </g>
+                  {/* Text label */}
+                  <text
+                    x="107"
+                    y={y + 34}
+                    textAnchor="middle"
+                    fontFamily="monospace"
+                    fontSize="14"
+                    fontWeight="600"
+                    fill="#4F378A"
+                  >
+                    {item.label}
+                  </text>
+                </motion.g>
+              );
+            })}
+          </AnimatePresence>
+
+          {/* FAB Button */}
+          <g
+            filter="url(#filter0_dd_1_296)"
+            className="cursor-pointer"
+            onClick={toggleMenu}
+          >
+            <g clipPath="url(#clip3_1_296)">
+              <path
+                d="M79 212C79 196.536 91.536 184 107 184V184C122.464 184 135 196.536 135 212V212C135 227.464 122.464 240 107 240V240C91.536 240 79 227.464 79 212V212Z"
+                fill="#E0664C"
+              />
+              {/* X icon when open, SparkLoader when closed */}
+              {isOpen ? (
+                <g>
+                  <line x1="102" y1="207" x2="112" y2="217" stroke="white" strokeWidth="2" strokeLinecap="round" />
+                  <line x1="112" y1="207" x2="102" y2="217" stroke="white" strokeWidth="2" strokeLinecap="round" />
+                </g>
+              ) : (
+                <foreignObject x="95" y="200" width="24" height="24">
+                  <SparkLoader size={24} className="brightness-0 invert" />
+                </foreignObject>
+              )}
+            </g>
+          </g>
         </svg>
       </div>
     </div>

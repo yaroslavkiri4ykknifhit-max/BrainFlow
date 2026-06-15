@@ -115,7 +115,7 @@ export function Layout() {
           </div>
         </main>
 
-        {/* Mobile Bottom Nav - Custom SVG */}
+        {/* Mobile Bottom Nav - FAB Menu */}
         <div className="md:hidden">
           <BottomNav />
         </div>
