@@ -42,7 +42,7 @@ export function BacklogView() {
 
   if (loading) {
     return (
-      <div className="flex flex-col h-full p-6 md:p-10 items-center justify-center">
+      <div className="flex flex-col h-[calc(100vh-120px)] md:h-full items-center justify-center">
         <SparkLoader size={40} />
         <p className="text-sm text-[#888] mt-4">Loading backlog...</p>
       </div>
@@ -50,7 +50,7 @@ export function BacklogView() {
   }
 
   return (
-    <div className="flex flex-col h-full p-6 md:p-10">
+    <div className="flex flex-col min-h-[calc(100vh-120px)] md:min-h-0 py-6 md:py-10">
       <header className="mb-10">
         <h1 className="text-2xl font-serif text-[#222] mb-2">Backlog</h1>
         <p className="text-sm text-[#888]">

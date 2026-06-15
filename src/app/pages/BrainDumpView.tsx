@@ -80,7 +80,7 @@ export function BrainDumpView() {
   };
 
   return (
-    <div className="flex flex-col h-full p-6 md:p-10 max-w-4xl mx-auto w-full relative">
+    <div className="flex flex-col min-h-[calc(100vh-120px)] md:min-h-0 py-6 md:py-10 max-w-4xl mx-auto w-full relative">
       <header className="mb-8 md:mb-16">
         <h1 className="text-2xl font-serif text-[#222] mb-2">Brain Dump</h1>
         <p className="text-sm text-[#888]">
