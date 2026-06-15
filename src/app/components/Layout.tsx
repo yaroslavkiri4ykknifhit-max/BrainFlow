@@ -4,6 +4,7 @@ import { clsx } from "clsx";
 import { motion, AnimatePresence } from "motion/react";
 import { useState, useEffect } from "react";
 import { SparkLoader } from "./SparkLoader";
+import { BottomNav } from "./BottomNav";
 
 function LoadingScreen({ onComplete }: { onComplete: () => void }) {
   useEffect(() => {
@@ -106,7 +107,7 @@ export function Layout() {
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 flex flex-col min-w-0 bg-white relative pb-16 md:pb-0 shadow-[-4px_0_24px_rgba(0,0,0,0.02)]">
+        <main className="flex-1 flex flex-col min-w-0 bg-white relative pb-20 md:pb-0 shadow-[-4px_0_24px_rgba(0,0,0,0.02)]">
           <div className="flex-1 overflow-y-auto pt-[max(env(safe-area-inset-top),0px)]">
             <div className="h-full w-full max-w-5xl mx-auto">
               <Outlet />
@@ -114,35 +115,10 @@ export function Layout() {
           </div>
         </main>
 
-        {/* Mobile Bottom Nav */}
-        <nav className="md:hidden fixed bottom-0 left-0 right-0 border-t border-zinc-200 bg-white/90 backdrop-blur-md z-50">
-          <div className="flex items-stretch justify-around px-2 pt-1.5 pb-[max(0.375rem,env(safe-area-inset-bottom))]">
-            {navItems.map((item) => {
-              const isActive = location.pathname === item.to;
-              return (
-                <NavLink
-                  key={item.to}
-                  to={item.to}
-                  className={clsx(
-                    "relative flex flex-col items-center justify-center gap-0.5 py-1.5 rounded-lg transition-colors duration-200 flex-1",
-                    isActive ? "text-[#E0664C]" : "text-[#aaa]"
-                  )}
-                >
-                  {isActive && (
-                    <motion.div
-                      layoutId="mobile-active"
-                      className="absolute inset-x-2 -top-0.5 h-0.5 bg-[#E0664C] rounded-full will-change-transform transform-gpu"
-                      initial={false}
-                      transition={{ type: "spring", stiffness: 500, damping: 35, mass: 0.8 }}
-                    />
-                  )}
-                  <item.icon className="w-5 h-5" />
-                  <span className="text-[10px] font-medium leading-none">{item.label}</span>
-                </NavLink>
-              );
-            })}
-          </div>
-        </nav>
+        {/* Mobile Bottom Nav - Custom SVG */}
+        <div className="md:hidden">
+          <BottomNav />
+        </div>
       </div>
     </>
   );
