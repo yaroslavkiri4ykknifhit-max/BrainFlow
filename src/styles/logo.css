@@ -4,55 +4,50 @@
 }
 
 /* Splash screen - large logo breathing animation */
-.brainflow-logo-splash {
-  animation: logoBreathe 2.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+.brainflow-logo-splash .bf-logo-path {
+  animation: segmentPulse 2.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
 
 /* Micro loader - faster, subtler pulse */
-.brainflow-logo-micro {
-  animation: logoPulse 1.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+.brainflow-logo-micro .bf-logo-path {
+  animation: segmentPulse 1.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
 
-@keyframes logoBreathe {
-  0%, 100% {
-    opacity: 0.4;
-    transform: scale(0.92);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
+/* Staggered delays for each segment */
+.bf-logo-segment-1 { animation-delay: 0ms !important; }
+.bf-logo-segment-2 { animation-delay: 150ms !important; }
+.bf-logo-segment-3 { animation-delay: 300ms !important; }
+.bf-logo-segment-4 { animation-delay: 450ms !important; }
 
-@keyframes logoPulse {
-  0%, 100% {
-    opacity: 0.5;
-    transform: scale(0.95);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-/* Staggered path animation for SVGs with multiple paths */
 .bf-logo-path {
   will-change: transform, opacity;
   transform-origin: center;
 }
 
-.bf-logo-path-1 {
-  animation: pathMorph 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-  animation-delay: 0ms;
-}
-
-@keyframes pathMorph {
+@keyframes segmentPulse {
   0%, 100% {
-    opacity: 0.35;
-    transform: scale(0.94);
+    opacity: 0.15;
+    transform: scale(0.88);
   }
   50% {
     opacity: 1;
     transform: scale(1);
   }
+}
+
+/* Individual segment overrides for more dramatic effect */
+.bf-logo-segment-1 {
+  transform-origin: 40px 50px;
+}
+
+.bf-logo-segment-2 {
+  transform-origin: 95px 40px;
+}
+
+.bf-logo-segment-3 {
+  transform-origin: 100px 65px;
+}
+
+.bf-logo-segment-4 {
+  transform-origin: 50px 95px;
 }
