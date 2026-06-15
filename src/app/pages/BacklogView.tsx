@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { CheckCircle2, Target, Lightbulb, MoreHorizontal, Loader2 } from "lucide-react";
+import { CheckCircle2, Target, Lightbulb, MoreHorizontal } from "lucide-react";
 import { getItems, deleteItem, completeItem } from "../../lib/supabase";
+import { SparkLoader } from "../components/SparkLoader";
 import type { Item, ItemCategory } from "../../types";
 
 const columns: { key: ItemCategory; label: string; emptyText: string }[] = [
@@ -42,8 +43,8 @@ export function BacklogView() {
   if (loading) {
     return (
       <div className="flex flex-col h-full p-6 md:p-10 items-center justify-center">
-        <Loader2 className="w-6 h-6 text-[#D97757] animate-spin" />
-        <p className="text-sm text-zinc-500 mt-3">Loading backlog...</p>
+        <SparkLoader size={32} />
+        <p className="text-sm text-[#888] mt-4">Loading backlog...</p>
       </div>
     );
   }
@@ -51,8 +52,8 @@ export function BacklogView() {
   return (
     <div className="flex flex-col h-full p-6 md:p-10">
       <header className="mb-10">
-        <h1 className="text-2xl font-serif text-zinc-800 mb-2">Backlog</h1>
-        <p className="text-sm text-zinc-500">
+        <h1 className="text-2xl font-serif text-[#222] mb-2">Backlog</h1>
+        <p className="text-sm text-[#888]">
           Sorted by AI. Pick a task or return to Focus.
         </p>
       </header>
@@ -63,43 +64,44 @@ export function BacklogView() {
           return (
             <div key={col.key} className="flex flex-col gap-4">
               <div className="flex items-center justify-between pb-2 border-b border-zinc-200">
-                <div className="flex items-center gap-2 text-zinc-800">
+                <div className="flex items-center gap-2 text-[#222]">
                   {col.key === "task" && <CheckCircle2 className="w-4 h-4 text-[#D97757]" />}
                   {col.key === "goal" && <Target className="w-4 h-4 text-[#D97757]" />}
                   {col.key === "idea" && <Lightbulb className="w-4 h-4 text-[#D97757]" />}
                   <h2 className="text-sm font-semibold uppercase tracking-wider">{col.label}</h2>
                 </div>
-                <span className="text-xs font-medium text-zinc-400 bg-zinc-100 px-2 py-0.5 rounded-full">
+                <span className="text-xs font-medium text-[#888] bg-zinc-100 px-2 py-0.5 rounded-full">
                   {colItems.length}
                 </span>
               </div>
               <div className="flex flex-col gap-3 overflow-y-auto py-1">
                 {colItems.length === 0 && (
-                  <p className="text-sm text-zinc-400 italic py-4 text-center">{col.emptyText}</p>
+                  <p className="text-sm text-[#aaa] italic py-4 text-center">{col.emptyText}</p>
                 )}
                 {colItems.map((item) => (
                   <div
                     key={item.id}
-                    className="group p-4 bg-white border border-zinc-200 rounded-xl hover:border-[#E5987A]/50 hover:shadow-md transition-all cursor-pointer flex items-start gap-3"
+                    className="group p-4 bg-white border border-zinc-200 rounded-xl hover:border-[#D97757]/30 hover:shadow-md transition-all duration-200 cursor-pointer flex items-start gap-3"
+                    style={{ transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)" }}
                   >
                     {col.key === "task" && (
                       <button
                         onClick={() => handleComplete(item.id)}
-                        className="mt-1 w-4 h-4 rounded-full border-2 border-zinc-300 group-hover:border-[#D97757] transition-colors hover:bg-[#D97757] flex-shrink-0"
+                        className="mt-1 w-4 h-4 rounded-full border-2 border-zinc-300 group-hover:border-[#D97757] transition-colors duration-200 hover:bg-[#D97757] flex-shrink-0"
                       />
                     )}
                     <p
                       className={`text-sm leading-snug flex-1 font-medium ${
                         col.key === "idea"
-                          ? "text-zinc-500 italic font-serif"
-                          : "text-zinc-700 group-hover:text-zinc-900"
+                          ? "text-[#888] italic font-serif"
+                          : "text-[#444] group-hover:text-[#222]"
                       }`}
                     >
                       {col.key === "idea" ? `"${item.text}"` : item.text}
                     </p>
                     <button
                       onClick={() => handleDelete(item.id)}
-                      className="opacity-0 group-hover:opacity-100 transition-opacity text-zinc-400 hover:text-red-500 flex-shrink-0"
+                      className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-[#aaa] hover:text-red-500 flex-shrink-0"
                     >
                       <MoreHorizontal className="w-4 h-4" />
                     </button>

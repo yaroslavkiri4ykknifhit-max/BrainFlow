@@ -3,24 +3,13 @@ import { CircleDot, Plus, Layers, User, MoreHorizontal } from "lucide-react";
 import { clsx } from "clsx";
 import { motion, AnimatePresence } from "motion/react";
 import { useState, useEffect } from "react";
+import { SparkLoader } from "./SparkLoader";
 
-const gpuEase = [0.16, 1, 0.3, 1] as const;
-
-function BrainFlowLogo({ size = 24, animate = false }: { size?: number; animate?: boolean }) {
-  const Wrapper = animate ? motion.div : "div";
-  const wrapperProps = animate
-    ? {
-        initial: { rotate: 0 },
-        animate: { rotate: 360 },
-        transition: { duration: 4, repeat: Infinity, ease: "linear" as const },
-      }
-    : {};
-
+function BrainFlowLogo({ size = 24 }: { size?: number }) {
   return (
-    <Wrapper
-      className="relative flex items-center justify-center will-change-transform transform-gpu"
+    <div
+      className="relative flex items-center justify-center"
       style={{ width: size, height: size }}
-      {...wrapperProps}
     >
       <div
         className="absolute inset-0 border-[2.5px] border-[#D97757] opacity-80"
@@ -37,7 +26,7 @@ function BrainFlowLogo({ size = 24, animate = false }: { size?: number; animate?
       <div className="absolute inset-0 flex items-center justify-center">
         <div className="w-1.5 h-1.5 rounded-full bg-[#D97757]" />
       </div>
-    </Wrapper>
+    </div>
   );
 }
 
@@ -51,22 +40,23 @@ function LoadingScreen({ onComplete }: { onComplete: () => void }) {
 
   return (
     <motion.div
-      className="fixed inset-0 bg-[#FAFAFA] flex items-center justify-center z-[100] will-change-opacity"
+      className="fixed inset-0 bg-white flex items-center justify-center z-[100] will-change-opacity"
       initial={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.4, ease: "easeOut" }}
+      transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
     >
-      <div className="flex flex-col items-center gap-6">
-        <div className="w-16 h-16">
-          <BrainFlowLogo size={64} animate />
-        </div>
+      <div className="flex flex-col items-center gap-8">
+        <SparkLoader size={64} />
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.3, duration: 0.4, ease: "easeOut" }}
-          className="text-[#D97757] font-medium tracking-widest text-sm uppercase"
+          transition={{ delay: 0.4, duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
+          className="flex items-center gap-3"
         >
-          BrainFlow
+          <BrainFlowLogo size={20} />
+          <span className="text-[#222] font-medium tracking-[0.15em] text-sm uppercase">
+            BrainFlow
+          </span>
         </motion.div>
       </div>
     </motion.div>
@@ -89,9 +79,9 @@ export function Layout() {
         {isLoading && <LoadingScreen onComplete={() => setIsLoading(false)} />}
       </AnimatePresence>
 
-      <div className="flex h-screen bg-[#FAFAFA] text-zinc-900 font-sans overflow-hidden antialiased selection:bg-[#E5987A]/30 selection:text-zinc-900">
+      <div className="flex h-screen bg-white text-[#222] font-sans overflow-hidden antialiased selection:bg-[#D97757]/20 selection:text-[#222]">
         {/* Desktop Sidebar */}
-        <aside className="hidden md:flex flex-col w-64 border-r border-zinc-200/80 bg-[#FAFAFA]">
+        <aside className="hidden md:flex flex-col w-64 border-r border-zinc-200 bg-white">
           <div className="flex items-center gap-3 px-6 py-6">
             <BrainFlowLogo size={24} />
             <span className="font-semibold tracking-tight text-sm text-zinc-800">BrainFlow</span>

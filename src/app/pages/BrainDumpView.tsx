@@ -1,10 +1,9 @@
 import { useState, useRef, useEffect } from "react";
-import { Loader2, Mic, MicOff, Sparkles, CheckCircle2 } from "lucide-react";
+import { Mic, MicOff, CheckCircle2 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { useNavigate } from "react-router";
 import { processThought } from "../../lib/supabase";
-
-const gpuEase = [0.16, 1, 0.3, 1] as const;
+import { SparkLoader } from "../components/SparkLoader";
 
 export function BrainDumpView() {
   const [text, setText] = useState("");
@@ -83,8 +82,8 @@ export function BrainDumpView() {
   return (
     <div className="flex flex-col h-full p-6 md:p-10 max-w-4xl mx-auto w-full relative">
       <header className="mb-8 md:mb-16">
-        <h1 className="text-2xl font-serif text-zinc-800 mb-2">Brain Dump</h1>
-        <p className="text-sm text-zinc-500">
+        <h1 className="text-2xl font-serif text-[#222] mb-2">Brain Dump</h1>
+        <p className="text-sm text-[#888]">
           Empty your mind. AI will sort it into actionable items automatically.
         </p>
       </header>
@@ -97,7 +96,7 @@ export function BrainDumpView() {
             onChange={(e) => setText(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="I need to fix the database bug, also maybe write a post about scaling, oh and buy coffee beans..."
-            className="w-full bg-transparent border-0 outline-none resize-none text-xl md:text-3xl font-serif leading-snug md:leading-relaxed text-zinc-800 placeholder:text-zinc-300 min-h-[200px] pr-12"
+            className="w-full bg-transparent border-0 outline-none resize-none text-xl md:text-3xl font-serif leading-snug md:leading-relaxed text-[#222] placeholder:text-zinc-300 min-h-[200px] pr-12"
             autoFocus
             disabled={isProcessing}
           />
@@ -142,7 +141,7 @@ export function BrainDumpView() {
                 className="group flex items-center gap-3 px-6 py-3.5 bg-[#D97757] text-white font-medium rounded-full shadow-lg shadow-[#D97757]/20 hover:bg-[#C86444] hover:shadow-xl hover:shadow-[#D97757]/30 transition-all duration-200 transform-gpu will-change-transform active:scale-95"
                 style={{ transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)" }}
               >
-                <Sparkles className="w-4 h-4" />
+                <SparkLoader size={16} color="#fff" />
                 <span>Process</span>
                 <div className="hidden md:flex items-center gap-1 text-[10px] font-sans ml-2 bg-white/20 px-2 py-0.5 rounded-full">
                   <span className="font-mono">⌘</span>
@@ -162,8 +161,8 @@ export function BrainDumpView() {
               transition={{ duration: 0.2, ease: "easeOut" }}
               className="fixed md:absolute bottom-20 md:bottom-0 right-6 md:right-0"
             >
-              <div className="flex items-center gap-3 px-6 py-3.5 bg-zinc-100 text-zinc-600 font-medium rounded-full">
-                <Loader2 className="w-4 h-4 animate-spin" />
+              <div className="flex items-center gap-3 px-6 py-3.5 bg-white border border-zinc-200 text-[#222] font-medium rounded-full shadow-sm">
+                <SparkLoader size={18} className="ai-spark-sm" />
                 <span>Sorting chaos...</span>
               </div>
             </motion.div>

@@ -1,0 +1,29 @@
+.ai-spark-path {
+  will-change: transform, opacity;
+  transform-origin: center;
+  animation: sparkMorph 1.6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+.ai-spark-path:nth-child(1) { animation-delay: 0ms; }
+.ai-spark-path:nth-child(2) { animation-delay: 200ms; }
+.ai-spark-path:nth-child(3) { animation-delay: 400ms; }
+.ai-spark-path:nth-child(4) { animation-delay: 600ms; }
+.ai-spark-path:nth-child(5) { animation-delay: 800ms; }
+.ai-spark-path:nth-child(6) { animation-delay: 1000ms; }
+.ai-spark-path:nth-child(7) { animation-delay: 1200ms; }
+.ai-spark-path:nth-child(8) { animation-delay: 1400ms; }
+
+@keyframes sparkMorph {
+  0%, 100% {
+    opacity: 0.25;
+    transform: scale(0.55);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.ai-spark-sm .ai-spark-path {
+  animation-duration: 1.4s;
+}
