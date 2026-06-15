@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { CheckCircle2, Target, Lightbulb, MoreHorizontal } from "lucide-react";
 import { getItems, deleteItem, completeItem } from "../../lib/supabase";
-import { SparkLoader } from "../components/SparkLoader";
+import { BrainFlowLogo } from "../components/BrainFlowLogo";
 import type { Item, ItemCategory } from "../../types";
 
 const columns: { key: ItemCategory; label: string; emptyText: string }[] = [
@@ -43,7 +43,7 @@ export function BacklogView() {
   if (loading) {
     return (
       <div className="flex flex-col h-full p-6 md:p-10 items-center justify-center">
-        <SparkLoader size={32} />
+        <BrainFlowLogo size={40} className="brainflow-logo-micro" />
         <p className="text-sm text-[#888] mt-4">Loading backlog...</p>
       </div>
     );

@@ -3,32 +3,7 @@ import { CircleDot, Plus, Layers, User, MoreHorizontal } from "lucide-react";
 import { clsx } from "clsx";
 import { motion, AnimatePresence } from "motion/react";
 import { useState, useEffect } from "react";
-import { SparkLoader } from "./SparkLoader";
-
-function BrainFlowLogo({ size = 24 }: { size?: number }) {
-  return (
-    <div
-      className="relative flex items-center justify-center"
-      style={{ width: size, height: size }}
-    >
-      <div
-        className="absolute inset-0 border-[2.5px] border-[#D97757] opacity-80"
-        style={{ borderRadius: "40% 60% 70% 30% / 40% 50% 60% 50%" }}
-      />
-      <div
-        className="absolute inset-[3px] border-[2.5px] border-[#E5987A] opacity-60"
-        style={{ borderRadius: "60% 40% 30% 70% / 50% 60% 40% 50%" }}
-      />
-      <div
-        className="absolute inset-[6px] border-[2.5px] border-[#F0BBAA] opacity-40"
-        style={{ borderRadius: "30% 70% 50% 50% / 60% 40% 50% 60%" }}
-      />
-      <div className="absolute inset-0 flex items-center justify-center">
-        <div className="w-1.5 h-1.5 rounded-full bg-[#D97757]" />
-      </div>
-    </div>
-  );
-}
+import { BrainFlowLogo } from "./BrainFlowLogo";
 
 function LoadingScreen({ onComplete }: { onComplete: () => void }) {
   useEffect(() => {
@@ -45,18 +20,15 @@ function LoadingScreen({ onComplete }: { onComplete: () => void }) {
       exit={{ opacity: 0 }}
       transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
     >
-      <div className="flex flex-col items-center gap-8">
-        <SparkLoader size={64} />
+      <div className="flex flex-col items-center gap-6">
+        <BrainFlowLogo size={80} className="brainflow-logo-splash" />
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.4, duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
-          className="flex items-center gap-3"
+          className="text-[#222] font-medium tracking-[0.15em] text-sm uppercase"
         >
-          <BrainFlowLogo size={20} />
-          <span className="text-[#222] font-medium tracking-[0.15em] text-sm uppercase">
-            BrainFlow
-          </span>
+          BrainFlow
         </motion.div>
       </div>
     </motion.div>
@@ -84,7 +56,7 @@ export function Layout() {
         <aside className="hidden md:flex flex-col w-64 border-r border-zinc-200 bg-white">
           <div className="flex items-center gap-3 px-6 py-6">
             <BrainFlowLogo size={24} />
-            <span className="font-semibold tracking-tight text-sm text-zinc-800">BrainFlow</span>
+            <span className="font-semibold tracking-tight text-sm text-[#222]">BrainFlow</span>
           </div>
 
           <div className="px-3 py-2">
@@ -99,8 +71,8 @@ export function Layout() {
                     className={clsx(
                       "relative flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors duration-200 group",
                       isActive
-                        ? "text-zinc-900 font-medium"
-                        : "text-zinc-500 hover:text-zinc-700 hover:bg-zinc-100/50"
+                        ? "text-[#222] font-medium"
+                        : "text-[#888] hover:text-[#444] hover:bg-zinc-100/50"
                     )}
                   >
                     {isActive && (

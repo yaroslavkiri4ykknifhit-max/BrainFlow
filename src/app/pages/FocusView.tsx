@@ -5,7 +5,7 @@ import { Link } from "react-router";
 import { format } from "date-fns";
 import { enUS } from "date-fns/locale";
 import { getCurrentTask, completeItem } from "../../lib/supabase";
-import { SparkLoader } from "../components/SparkLoader";
+import { BrainFlowLogo } from "../components/BrainFlowLogo";
 import type { Item } from "../../types";
 
 export function FocusView() {
@@ -46,7 +46,7 @@ export function FocusView() {
   if (loading) {
     return (
       <div className="flex flex-col h-full p-6 md:p-10 items-center justify-center">
-        <SparkLoader size={32} />
+        <BrainFlowLogo size={40} className="brainflow-logo-micro" />
         <p className="text-sm text-[#888] mt-4">Loading focus...</p>
       </div>
     );

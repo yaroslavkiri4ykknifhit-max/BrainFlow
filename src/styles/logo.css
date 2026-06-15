@@ -1,0 +1,58 @@
+.brainflow-logo {
+  will-change: transform, opacity;
+  transform-origin: center;
+}
+
+/* Splash screen - large logo breathing animation */
+.brainflow-logo-splash {
+  animation: logoBreathe 2.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+/* Micro loader - faster, subtler pulse */
+.brainflow-logo-micro {
+  animation: logoPulse 1.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes logoBreathe {
+  0%, 100% {
+    opacity: 0.4;
+    transform: scale(0.92);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes logoPulse {
+  0%, 100% {
+    opacity: 0.5;
+    transform: scale(0.95);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Staggered path animation for SVGs with multiple paths */
+.bf-logo-path {
+  will-change: transform, opacity;
+  transform-origin: center;
+}
+
+.bf-logo-path-1 {
+  animation: pathMorph 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  animation-delay: 0ms;
+}
+
+@keyframes pathMorph {
+  0%, 100% {
+    opacity: 0.35;
+    transform: scale(0.94);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
