@@ -1,10 +1,10 @@
-import { createBrowserRouter } from "react-router";
+import { createHashRouter } from "react-router";
 import { Layout } from "./components/Layout";
 import { FocusView } from "./pages/FocusView";
 import { BrainDumpView } from "./pages/BrainDumpView";
 import { BacklogView } from "./pages/BacklogView";
 
-export const router = createBrowserRouter([
+export const router = createHashRouter([
   {
     path: "/",
     Component: Layout,
