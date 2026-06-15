@@ -142,7 +142,7 @@ export function Layout() {
 
         {/* Main Content */}
         <main className="flex-1 flex flex-col min-w-0 bg-white relative pb-16 md:pb-0 shadow-[-4px_0_24px_rgba(0,0,0,0.02)]">
-          <div className="flex-1 overflow-y-auto">
+          <div className="flex-1 overflow-y-auto pt-[max(env(safe-area-inset-top),0px)]">
             <div className="h-full w-full max-w-5xl mx-auto">
               <Outlet />
             </div>
