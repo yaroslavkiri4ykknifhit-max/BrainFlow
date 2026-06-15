@@ -1,40 +1,62 @@
 import { Outlet, NavLink, useLocation } from "react-router";
-import { CircleDot, Plus, Layers, User, MoreHorizontal, Terminal } from "lucide-react";
+import { CircleDot, Plus, Layers, User, MoreHorizontal } from "lucide-react";
 import { clsx } from "clsx";
 import { motion, AnimatePresence } from "motion/react";
 import { useState, useEffect } from "react";
 
-// Mock Loading Screen with Claude-like logo
+function BrainFlowLogo({ size = 24, animate = false }: { size?: number; animate?: boolean }) {
+  const Wrapper = animate ? motion.div : "div";
+  const wrapperProps = animate
+    ? {
+        initial: { rotate: 0 },
+        animate: { rotate: 360 },
+        transition: { duration: 4, repeat: Infinity, ease: "linear" as const },
+      }
+    : {};
+
+  return (
+    <Wrapper
+      className="relative flex items-center justify-center"
+      style={{ width: size, height: size }}
+      {...wrapperProps}
+    >
+      <div
+        className="absolute inset-0 border-[2.5px] border-[#D97757] opacity-80"
+        style={{ borderRadius: "40% 60% 70% 30% / 40% 50% 60% 50%" }}
+      />
+      <div
+        className="absolute inset-[3px] border-[2.5px] border-[#E5987A] opacity-60"
+        style={{ borderRadius: "60% 40% 30% 70% / 50% 60% 40% 50%" }}
+      />
+      <div
+        className="absolute inset-[6px] border-[2.5px] border-[#F0BBAA] opacity-40"
+        style={{ borderRadius: "30% 70% 50% 50% / 60% 40% 50% 60%" }}
+      />
+      <div className="absolute inset-0 flex items-center justify-center">
+        <div className="w-1.5 h-1.5 rounded-full bg-[#D97757]" />
+      </div>
+    </Wrapper>
+  );
+}
+
 function LoadingScreen({ onComplete }: { onComplete: () => void }) {
   useEffect(() => {
     const timer = setTimeout(() => {
       onComplete();
-    }, 2000); // 2 seconds loading
+    }, 2000);
     return () => clearTimeout(timer);
   }, [onComplete]);
 
   return (
-    <motion.div 
+    <motion.div
       className="fixed inset-0 bg-[#FAFAFA] flex items-center justify-center z-[100]"
       initial={{ opacity: 1 }}
       exit={{ opacity: 0, transition: { duration: 0.8, ease: "easeInOut" } }}
     >
       <div className="flex flex-col items-center gap-6">
-        <motion.div
-          className="relative w-16 h-16 flex items-center justify-center"
-          initial={{ rotate: 0 }}
-          animate={{ rotate: 360 }}
-          transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-        >
-          {/* A sophisticated abstract logo inspired by Claude/AI aesthetics */}
-          <div className="absolute inset-0 rounded-2xl border-4 border-[#D97757] opacity-80" style={{ borderRadius: '40% 60% 70% 30% / 40% 50% 60% 50%' }} />
-          <div className="absolute inset-2 rounded-2xl border-4 border-[#E5987A] opacity-60" style={{ borderRadius: '60% 40% 30% 70% / 50% 60% 40% 50%' }} />
-          <div className="absolute inset-4 rounded-xl border-4 border-[#F0BBAA] opacity-40" style={{ borderRadius: '30% 70% 50% 50% / 60% 40% 50% 60%' }} />
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-2 h-2 rounded-full bg-[#D97757]" />
-          </div>
-        </motion.div>
-        
+        <div className="w-16 h-16">
+          <BrainFlowLogo size={64} animate />
+        </div>
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -51,7 +73,7 @@ function LoadingScreen({ onComplete }: { onComplete: () => void }) {
 export function Layout() {
   const location = useLocation();
   const [isLoading, setIsLoading] = useState(true);
-  
+
   const navItems = [
     { to: "/", icon: CircleDot, label: "Фокус" },
     { to: "/dump", icon: Plus, label: "Brain Dump" },
@@ -68,12 +90,10 @@ export function Layout() {
         {/* Desktop Sidebar */}
         <aside className="hidden md:flex flex-col w-64 border-r border-zinc-200/80 bg-[#FAFAFA]">
           <div className="flex items-center gap-3 px-6 py-6">
-            <div className="w-6 h-6 bg-[#D97757] rounded flex items-center justify-center text-white shadow-sm">
-              <Terminal className="w-3.5 h-3.5" />
-            </div>
+            <BrainFlowLogo size={24} />
             <span className="font-semibold tracking-tight text-sm text-zinc-800">BrainFlow</span>
           </div>
-          
+
           <div className="px-3 py-2">
             <p className="px-3 text-xs font-medium text-zinc-400 mb-2 uppercase tracking-wider">Меню</p>
             <nav className="space-y-1">
@@ -130,31 +150,33 @@ export function Layout() {
         </main>
 
         {/* Mobile Bottom Nav */}
-        <nav className="md:hidden fixed bottom-0 left-0 right-0 border-t border-zinc-200 bg-white/90 backdrop-blur-md flex justify-around p-2 pb-safe z-50">
-          {navItems.map((item) => {
-            const isActive = location.pathname === item.to;
-            return (
-              <NavLink
-                key={item.to}
-                to={item.to}
-                className={clsx(
-                  "relative flex flex-col items-center gap-1 p-2 rounded-lg transition-colors w-16",
-                  isActive ? "text-[#D97757]" : "text-zinc-400 hover:text-zinc-600"
-                )}
-              >
-                {isActive && (
-                  <motion.div
-                    layoutId="mobile-active"
-                    className="absolute inset-0 bg-[#D97757]/10 rounded-lg"
-                    initial={false}
-                    transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                  />
-                )}
-                <item.icon className="w-5 h-5 relative z-10" />
-                <span className="text-[10px] font-medium relative z-10">{item.label}</span>
-              </NavLink>
-            );
-          })}
+        <nav className="md:hidden fixed bottom-0 left-0 right-0 border-t border-zinc-200 bg-white/90 backdrop-blur-md z-50">
+          <div className="flex items-stretch justify-around px-2 pt-1.5 pb-[max(0.375rem,env(safe-area-inset-bottom))]">
+            {navItems.map((item) => {
+              const isActive = location.pathname === item.to;
+              return (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  className={clsx(
+                    "relative flex flex-col items-center justify-center gap-0.5 py-1.5 rounded-lg transition-colors flex-1",
+                    isActive ? "text-[#D97757]" : "text-zinc-400"
+                  )}
+                >
+                  {isActive && (
+                    <motion.div
+                      layoutId="mobile-active"
+                      className="absolute inset-x-2 -top-0.5 h-0.5 bg-[#D97757] rounded-full"
+                      initial={false}
+                      transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                    />
+                  )}
+                  <item.icon className="w-5 h-5" />
+                  <span className="text-[10px] font-medium leading-none">{item.label}</span>
+                </NavLink>
+              );
+            })}
+          </div>
         </nav>
       </div>
     </>
