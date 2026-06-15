@@ -4,6 +4,8 @@ import { clsx } from "clsx";
 import { motion, AnimatePresence } from "motion/react";
 import { useState, useEffect } from "react";
 
+const gpuEase = [0.16, 1, 0.3, 1] as const;
+
 function BrainFlowLogo({ size = 24, animate = false }: { size?: number; animate?: boolean }) {
   const Wrapper = animate ? motion.div : "div";
   const wrapperProps = animate
@@ -16,7 +18,7 @@ function BrainFlowLogo({ size = 24, animate = false }: { size?: number; animate?
 
   return (
     <Wrapper
-      className="relative flex items-center justify-center"
+      className="relative flex items-center justify-center will-change-transform transform-gpu"
       style={{ width: size, height: size }}
       {...wrapperProps}
     >
@@ -49,18 +51,19 @@ function LoadingScreen({ onComplete }: { onComplete: () => void }) {
 
   return (
     <motion.div
-      className="fixed inset-0 bg-[#FAFAFA] flex items-center justify-center z-[100]"
+      className="fixed inset-0 bg-[#FAFAFA] flex items-center justify-center z-[100] will-change-opacity"
       initial={{ opacity: 1 }}
-      exit={{ opacity: 0, transition: { duration: 0.8, ease: "easeInOut" } }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.4, ease: "easeOut" }}
     >
       <div className="flex flex-col items-center gap-6">
         <div className="w-16 h-16">
           <BrainFlowLogo size={64} animate />
         </div>
         <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3, duration: 0.4, ease: "easeOut" }}
           className="text-[#D97757] font-medium tracking-widest text-sm uppercase"
         >
           BrainFlow
@@ -113,9 +116,9 @@ export function Layout() {
                     {isActive && (
                       <motion.div
                         layoutId="sidebar-active"
-                        className="absolute inset-0 bg-white border border-zinc-200 shadow-sm rounded-md"
+                        className="absolute inset-0 bg-white border border-zinc-200 shadow-sm rounded-md will-change-transform transform-gpu"
                         initial={false}
-                        transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                        transition={{ type: "spring", stiffness: 500, damping: 35, mass: 0.8 }}
                       />
                     )}
                     <item.icon className={clsx("w-4 h-4 relative z-10", isActive ? "text-[#D97757]" : "")} />
@@ -127,7 +130,7 @@ export function Layout() {
           </div>
 
           <div className="mt-auto p-4 border-t border-zinc-100">
-            <button className="flex items-center gap-3 w-full px-2 py-2 rounded-md hover:bg-zinc-100 transition-colors text-left group">
+            <button className="flex items-center gap-3 w-full px-2 py-2 rounded-md hover:bg-zinc-100 transition-colors duration-200 text-left group">
               <div className="w-8 h-8 rounded-full bg-zinc-200 flex items-center justify-center overflow-hidden border border-zinc-300">
                 <User className="w-4 h-4 text-zinc-500" />
               </div>
@@ -159,16 +162,16 @@ export function Layout() {
                   key={item.to}
                   to={item.to}
                   className={clsx(
-                    "relative flex flex-col items-center justify-center gap-0.5 py-1.5 rounded-lg transition-colors flex-1",
+                    "relative flex flex-col items-center justify-center gap-0.5 py-1.5 rounded-lg transition-colors duration-200 flex-1",
                     isActive ? "text-[#D97757]" : "text-zinc-400"
                   )}
                 >
                   {isActive && (
                     <motion.div
                       layoutId="mobile-active"
-                      className="absolute inset-x-2 -top-0.5 h-0.5 bg-[#D97757] rounded-full"
+                      className="absolute inset-x-2 -top-0.5 h-0.5 bg-[#D97757] rounded-full will-change-transform transform-gpu"
                       initial={false}
-                      transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                      transition={{ type: "spring", stiffness: 500, damping: 35, mass: 0.8 }}
                     />
                   )}
                   <item.icon className="w-5 h-5" />

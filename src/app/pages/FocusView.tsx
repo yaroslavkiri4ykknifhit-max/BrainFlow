@@ -70,6 +70,7 @@ export function FocusView() {
               key="empty"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
+              transition={{ duration: 0.3, ease: "easeOut" }}
               className="text-center py-12"
             >
               <p className="text-lg text-zinc-500 font-serif mb-4">
@@ -77,7 +78,8 @@ export function FocusView() {
               </p>
               <Link
                 to="/dump"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-[#D97757] text-white font-medium rounded-lg hover:bg-[#C86444] transition-colors"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-[#D97757] text-white font-medium rounded-lg hover:bg-[#C86444] transition-colors duration-200"
+                style={{ transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)" }}
               >
                 Brain Dump <ChevronRight className="w-4 h-4" />
               </Link>
@@ -85,10 +87,10 @@ export function FocusView() {
           ) : !completed ? (
             <motion.div
               key="task"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              transition={{ duration: 0.3 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3, ease: "easeOut" }}
               className="space-y-8"
             >
               <div className="flex items-center gap-3">
@@ -114,26 +116,28 @@ export function FocusView() {
               <div className="flex flex-wrap items-center gap-4 pt-4">
                 <button
                   onClick={handleComplete}
-                  className="group relative flex items-center gap-3 px-6 py-3.5 bg-zinc-900 text-white font-medium rounded-lg overflow-hidden transition-transform active:scale-95 shadow-md shadow-zinc-900/10 hover:shadow-lg hover:shadow-zinc-900/20"
+                  className="group relative flex items-center gap-3 px-6 py-3.5 bg-zinc-900 text-white font-medium rounded-lg overflow-hidden transition-all duration-200 shadow-md shadow-zinc-900/10 hover:shadow-lg hover:shadow-zinc-900/20 active:scale-95 transform-gpu will-change-transform"
+                  style={{ transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)" }}
                 >
-                  <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity" />
-                  <div className="flex items-center justify-center w-5 h-5 rounded-sm border border-white/30 group-hover:bg-white group-hover:border-white transition-colors">
-                    <Check className="w-3.5 h-3.5 text-zinc-900 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-200" />
+                  <div className="flex items-center justify-center w-5 h-5 rounded-sm border border-white/30 group-hover:bg-white group-hover:border-white transition-all duration-200">
+                    <Check className="w-3.5 h-3.5 text-zinc-900 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
                   </div>
                   Mark as Done
                 </button>
                 <Link
                   to="/dump"
-                  className="px-6 py-3.5 text-sm font-medium text-zinc-500 hover:text-zinc-800 transition-colors"
+                  className="px-6 py-3.5 text-sm font-medium text-zinc-500 hover:text-zinc-800 transition-colors duration-200"
+                  style={{ transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)" }}
                 >
                   Skip / Delegate
                 </Link>
               </div>
 
               <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.15, duration: 0.3, ease: "easeOut" }}
                 className="mt-12 bg-[#FAFAFA] border border-[#E5987A]/30 rounded-2xl p-6 relative overflow-hidden shadow-sm"
               >
                 <div className="absolute top-0 left-0 w-1 h-full bg-[#D97757]" />
@@ -153,8 +157,9 @@ export function FocusView() {
           ) : (
             <motion.div
               key="success"
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.3, ease: "easeOut" }}
               className="flex flex-col items-center text-center py-12"
             >
               <div className="w-16 h-16 bg-emerald-50 rounded-full border border-emerald-100 flex items-center justify-center mb-6 shadow-sm">
@@ -167,13 +172,15 @@ export function FocusView() {
               <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
                 <button
                   onClick={handleNextTask}
-                  className="px-6 py-3 bg-zinc-900 hover:bg-zinc-800 text-white font-medium rounded-lg transition-colors shadow-sm"
+                  className="px-6 py-3 bg-zinc-900 hover:bg-zinc-800 text-white font-medium rounded-lg transition-colors duration-200 shadow-sm"
+                  style={{ transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)" }}
                 >
                   Next Task
                 </button>
                 <Link
                   to="/dump"
-                  className="px-6 py-3 bg-white border border-zinc-200 hover:bg-zinc-50 text-zinc-700 font-medium rounded-lg transition-colors flex items-center justify-center gap-2 shadow-sm"
+                  className="px-6 py-3 bg-white border border-zinc-200 hover:bg-zinc-50 text-zinc-700 font-medium rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 shadow-sm"
+                  style={{ transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)" }}
                 >
                   Brain Dump <ChevronRight className="w-4 h-4" />
                 </Link>

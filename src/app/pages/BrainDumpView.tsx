@@ -4,6 +4,8 @@ import { motion, AnimatePresence } from "motion/react";
 import { useNavigate } from "react-router";
 import { processThought } from "../../lib/supabase";
 
+const gpuEase = [0.16, 1, 0.3, 1] as const;
+
 export function BrainDumpView() {
   const [text, setText] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
@@ -101,11 +103,12 @@ export function BrainDumpView() {
           />
           <button
             onClick={toggleRecording}
-            className={`absolute bottom-2 right-0 w-8 h-8 flex items-center justify-center rounded-full transition-all ${
+            className={`absolute bottom-2 right-0 w-8 h-8 flex items-center justify-center rounded-full transition-all duration-200 transform-gpu will-change-transform ${
               isRecording
                 ? "text-[#ff4d4f] animate-pulse bg-red-50"
                 : "text-zinc-400 hover:text-zinc-600"
             }`}
+            style={{ transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)" }}
           >
             {isRecording ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
           </button>
@@ -114,9 +117,10 @@ export function BrainDumpView() {
         <AnimatePresence>
           {error && (
             <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
               className="fixed md:absolute bottom-36 md:bottom-16 right-6 md:right-0 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm max-w-sm"
             >
               {error}
@@ -127,14 +131,16 @@ export function BrainDumpView() {
         <AnimatePresence>
           {text.trim() && !isProcessing && !savedCount && (
             <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 10 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
               className="fixed md:absolute bottom-20 md:bottom-0 right-6 md:right-0"
             >
               <button
                 onClick={handleProcess}
-                className="group flex items-center gap-3 px-6 py-3.5 bg-[#D97757] text-white font-medium rounded-full shadow-lg shadow-[#D97757]/20 hover:bg-[#C86444] hover:shadow-xl hover:shadow-[#D97757]/30 hover:-translate-y-0.5 active:translate-y-0 transition-all"
+                className="group flex items-center gap-3 px-6 py-3.5 bg-[#D97757] text-white font-medium rounded-full shadow-lg shadow-[#D97757]/20 hover:bg-[#C86444] hover:shadow-xl hover:shadow-[#D97757]/30 transition-all duration-200 transform-gpu will-change-transform active:scale-95"
+                style={{ transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)" }}
               >
                 <Sparkles className="w-4 h-4" />
                 <span>Process</span>
@@ -150,9 +156,10 @@ export function BrainDumpView() {
         <AnimatePresence>
           {isProcessing && (
             <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 10 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
               className="fixed md:absolute bottom-20 md:bottom-0 right-6 md:right-0"
             >
               <div className="flex items-center gap-3 px-6 py-3.5 bg-zinc-100 text-zinc-600 font-medium rounded-full">
@@ -166,8 +173,9 @@ export function BrainDumpView() {
         <AnimatePresence>
           {savedCount > 0 && (
             <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
               className="fixed md:absolute bottom-20 md:bottom-0 right-6 md:right-0"
             >
               <div className="flex items-center gap-3 px-6 py-3.5 bg-emerald-50 text-emerald-700 font-medium rounded-full border border-emerald-200">
