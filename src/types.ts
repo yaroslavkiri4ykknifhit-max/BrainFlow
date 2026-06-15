@@ -1,9 +1,12 @@
 export type ItemCategory = "task" | "goal" | "idea";
+export type Timeline = "today" | "tomorrow" | null;
 
 export interface Item {
   id: string;
+  dump_id: string;
   text: string;
   category: ItemCategory;
+  timeline: Timeline;
   completed: boolean;
   created_at: string;
 }
@@ -14,8 +17,14 @@ export interface Dump {
   created_at: string;
 }
 
-export interface ParsedDump {
-  tasks: string[];
-  goals: string[];
-  ideas: string[];
+export interface ParsedItem {
+  type: ItemCategory;
+  timeline: Timeline;
+  title: string;
+  description: string;
+}
+
+export interface ProcessResponse {
+  success: boolean;
+  items: ParsedItem[];
 }

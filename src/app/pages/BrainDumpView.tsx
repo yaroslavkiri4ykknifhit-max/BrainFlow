@@ -1,17 +1,18 @@
 import { useState, useRef, useEffect } from "react";
-import { Loader2, Sparkles, CheckCircle2 } from "lucide-react";
+import { Loader2, Mic, MicOff } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { useNavigate } from "react-router";
-import { parseBrainDump } from "../../lib/groq";
-import { saveDump } from "../../lib/supabase";
+import { processThought } from "../../lib/supabase";
 
 export function BrainDumpView() {
   const [text, setText] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isRecording, setIsRecording] = useState(false);
   const [savedCount, setSavedCount] = useState(0);
   const navigate = useNavigate();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const recognitionRef = useRef<any>(null);
 
   useEffect(() => {
     if (textareaRef.current) {
@@ -20,6 +21,52 @@ export function BrainDumpView() {
     }
   }, [text]);
 
+  useEffect(() => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) return;
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = "ru-RU";
+    recognition.interimResults = true;
+    recognition.continuous = true;
+
+    recognition.onresult = (event: any) => {
+      let transcript = "";
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        transcript += event.results[i][0].transcript;
+      }
+      setText((prev) => {
+        const base = prev.replace(/\s*$/, "");
+        return base + (base ? " " : "") + transcript;
+      });
+    };
+
+    recognition.onerror = () => {
+      setIsRecording(false);
+    };
+
+    recognition.onend = () => {
+      setIsRecording(false);
+    };
+
+    recognitionRef.current = recognition;
+
+    return () => {
+      recognition.abort();
+    };
+  }, []);
+
+  function toggleRecording() {
+    if (!recognitionRef.current) return;
+    if (isRecording) {
+      recognitionRef.current.stop();
+      setIsRecording(false);
+    } else {
+      recognitionRef.current.start();
+      setIsRecording(true);
+    }
+  }
+
   const handleProcess = async () => {
     if (!text.trim()) return;
 
@@ -27,15 +74,8 @@ export function BrainDumpView() {
     setError(null);
 
     try {
-      const parsed = await parseBrainDump(text);
-      const allItems = [
-        ...parsed.tasks.map((t) => ({ text: t, category: "task" })),
-        ...parsed.goals.map((t) => ({ text: t, category: "goal" })),
-        ...parsed.ideas.map((t) => ({ text: t, category: "idea" })),
-      ];
-
-      await saveDump(text, allItems);
-      setSavedCount(allItems.length);
+      const result = await processThought(text);
+      setSavedCount(result.items.length);
 
       setTimeout(() => {
         navigate("/backlog");
@@ -53,92 +93,91 @@ export function BrainDumpView() {
   };
 
   return (
-    <div className="flex flex-col h-full p-6 md:p-10 max-w-4xl mx-auto w-full relative">
-      <header className="mb-8 md:mb-16">
-        <h1 className="text-2xl font-serif text-zinc-800 mb-2">Brain Dump</h1>
-        <p className="text-sm text-zinc-500">
-          Empty your mind. AI will sort it into actionable items automatically.
+    <div className="flex flex-col h-full bg-black text-white">
+      <header className="px-6 py-6 border-b border-[#333]">
+        <h1 className="text-lg font-mono font-bold uppercase tracking-widest">Brain Dump</h1>
+        <p className="text-xs text-zinc-500 mt-1 font-mono">
+          Dump your thoughts. AI will parse and categorize them.
         </p>
       </header>
 
-      <div className="flex-1 flex flex-col relative min-h-[50vh]">
-        <textarea
-          ref={textareaRef}
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder="I need to fix the database bug, also maybe write a post about scaling, oh and buy coffee beans..."
-          className="w-full bg-transparent border-0 outline-none resize-none text-xl md:text-3xl font-serif leading-snug md:leading-relaxed text-zinc-800 placeholder:text-zinc-300 min-h-[200px]"
-          autoFocus
-          disabled={isProcessing}
-        />
+      <div className="flex-1 flex flex-col relative p-6">
+        <div className="relative flex-1 min-h-[50vh]">
+          <textarea
+            ref={textareaRef}
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="I need to fix the database bug, also maybe write a post about scaling, oh and buy coffee beans..."
+            className="w-full bg-transparent border border-[#333] p-4 outline-none resize-none text-lg font-mono leading-relaxed text-white placeholder:text-zinc-700 min-h-[300px] focus:border-white transition-colors"
+            autoFocus
+            disabled={isProcessing}
+          />
+
+          <button
+            onClick={toggleRecording}
+            className={`absolute bottom-4 right-4 w-10 h-10 flex items-center justify-center border transition-all ${
+              isRecording
+                ? "border-[#ff4d4f] text-[#ff4d4f] animate-pulse"
+                : "border-[#333] text-zinc-500 hover:text-white hover:border-white"
+            }`}
+          >
+            {isRecording ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+          </button>
+        </div>
 
         <AnimatePresence>
           {error && (
             <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed md:absolute bottom-36 md:bottom-16 right-6 md:right-0 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm max-w-sm"
+              className="mt-4 px-4 py-3 bg-[#1a0000] border border-[#ff4d4f] text-[#ff4d4f] font-mono text-xs"
             >
               {error}
             </motion.div>
           )}
         </AnimatePresence>
 
-        <AnimatePresence>
-          {text.trim() && !isProcessing && !savedCount && (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 10 }}
-              className="fixed md:absolute bottom-20 md:bottom-0 right-6 md:right-0"
-            >
-              <button
-                onClick={handleProcess}
-                className="group flex items-center gap-3 px-6 py-3.5 bg-[#D97757] text-white font-medium rounded-full shadow-lg shadow-[#D97757]/20 hover:bg-[#C86444] hover:shadow-xl hover:shadow-[#D97757]/30 hover:-translate-y-0.5 active:translate-y-0 transition-all"
+        <div className="mt-4 flex items-center justify-between">
+          <div className="text-xs font-mono text-zinc-600">
+            {text.trim() ? `${text.split(/\s+/).length} words` : ""}
+          </div>
+
+          <AnimatePresence mode="wait">
+            {savedCount > 0 ? (
+              <motion.div
+                key="saved"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="px-6 py-3 border border-white text-white font-mono text-sm"
               >
-                <Sparkles className="w-4 h-4" />
-                <span>Process</span>
-                <div className="hidden md:flex items-center gap-1 text-[10px] font-sans ml-2 bg-white/20 px-2 py-0.5 rounded-full">
-                  <span className="font-mono">⌘</span>
-                  <span className="font-mono">↵</span>
-                </div>
-              </button>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        <AnimatePresence>
-          {isProcessing && (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 10 }}
-              className="fixed md:absolute bottom-20 md:bottom-0 right-6 md:right-0"
-            >
-              <div className="flex items-center gap-3 px-6 py-3.5 bg-zinc-100 text-zinc-600 font-medium rounded-full">
+                {savedCount} items saved
+              </motion.div>
+            ) : isProcessing ? (
+              <motion.div
+                key="loading"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="px-6 py-3 border border-[#333] text-zinc-500 font-mono text-sm flex items-center gap-2"
+              >
                 <Loader2 className="w-4 h-4 animate-spin" />
-                <span>Sorting chaos...</span>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        <AnimatePresence>
-          {savedCount > 0 && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="fixed md:absolute bottom-20 md:bottom-0 right-6 md:right-0"
-            >
-              <div className="flex items-center gap-3 px-6 py-3.5 bg-emerald-50 text-emerald-700 font-medium rounded-full border border-emerald-200">
-                <CheckCircle2 className="w-4 h-4" />
-                <span>{savedCount} items saved</span>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+                Processing...
+              </motion.div>
+            ) : text.trim() ? (
+              <motion.button
+                key="process"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={handleProcess}
+                className="px-6 py-3 bg-white text-black font-mono text-sm font-bold uppercase tracking-wider hover:bg-zinc-200 transition-colors"
+              >
+                Process ↵
+              </motion.button>
+            ) : null}
+          </AnimatePresence>
+        </div>
       </div>
     </div>
   );
