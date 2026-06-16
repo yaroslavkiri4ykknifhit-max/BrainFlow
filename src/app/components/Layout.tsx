@@ -4,7 +4,7 @@ import { clsx } from "clsx";
 import { motion, AnimatePresence } from "motion/react";
 import { useState, useEffect } from "react";
 import { SparkLoader } from "./SparkLoader";
-import { BottomNav } from "./BottomNav";
+import { TopNav } from "./BottomNav";
 
 function LoadingScreen({ onComplete }: { onComplete: () => void }) {
   useEffect(() => {
@@ -167,17 +167,16 @@ export function Layout() {
 
         {/* Main Content */}
         <main className="flex-1 flex flex-col min-w-0 bg-white relative pb-24 md:pb-0">
+          {/* Mobile Top Nav */}
+          <div className="md:hidden pt-[max(env(safe-area-inset-top),16px)] px-4 pb-2">
+            <TopNav />
+          </div>
           <div className="flex-1 overflow-y-auto">
-            <div className="h-full w-full max-w-5xl mx-auto px-4 md:px-8 pt-[max(env(safe-area-inset-top),16px)]">
+            <div className="h-full w-full max-w-5xl mx-auto px-4 md:px-8 pt-2 md:pt-[max(env(safe-area-inset-top),16px)]">
               <Outlet />
             </div>
           </div>
         </main>
-
-        {/* Mobile Bottom Nav */}
-        <div className="md:hidden">
-          <BottomNav />
-        </div>
       </div>
     </>
   );
