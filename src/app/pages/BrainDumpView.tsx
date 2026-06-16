@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Mic, MicOff, CheckCircle2, Sparkles } from "lucide-react";
+import { Mic, MicOff, CheckCircle2 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { useNavigate } from "react-router";
 import { processThought } from "../../lib/supabase";
@@ -112,34 +112,22 @@ export function BrainDumpView() {
             >
               {isRecording ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
             </button>
-            <AnimatePresence>
-              {text.trim() && !isProcessing && !savedCount && (
-                <motion.button
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.8 }}
-                  transition={{ duration: 0.15 }}
-                  onClick={handleProcess}
-                  className="w-10 h-10 flex items-center justify-center rounded-full bg-[#E0664C] text-white hover:bg-[#c95a42] shadow-[0_2px_8px_rgba(224,102,76,0.25)] active:scale-90 transition-all duration-200 transform-gpu will-change-transform"
-                  style={{ transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)" }}
-                >
-                  <Sparkles className="w-4 h-4" />
-                </motion.button>
-              )}
-            </AnimatePresence>
-            <AnimatePresence>
-              {isProcessing && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.8 }}
-                  transition={{ duration: 0.15 }}
-                  className="w-10 h-10 flex items-center justify-center rounded-full bg-white border border-zinc-200"
-                >
-                  <SparkLoader size={16} />
-                </motion.div>
-              )}
-            </AnimatePresence>
+            {isProcessing ? (
+              <div className="flex items-center gap-2 px-4 h-10 rounded-full bg-white border border-zinc-200">
+                <SparkLoader size={16} />
+                <span className="text-sm font-medium text-[#222]">Processing...</span>
+              </div>
+            ) : (
+              <button
+                onClick={handleProcess}
+                disabled={!text.trim() || savedCount > 0}
+                className="flex items-center gap-2 px-4 h-10 rounded-full bg-[#E0664C] text-white hover:bg-[#c95a42] shadow-[0_2px_8px_rgba(224,102,76,0.25)] active:scale-95 transition-all duration-200 transform-gpu will-change-transform disabled:opacity-40 disabled:cursor-not-allowed"
+                style={{ transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)" }}
+              >
+                <SparkLoader size={14} className="brightness-0 invert" animated={false} />
+                <span className="text-sm font-medium">Process</span>
+              </button>
+            )}
           </div>
         </div>
 
