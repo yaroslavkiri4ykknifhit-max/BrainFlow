@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Mic, MicOff, CheckCircle2 } from "lucide-react";
+import { Mic, MicOff } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { useNavigate } from "react-router";
 import { processThought } from "../../lib/supabase";
@@ -10,7 +10,7 @@ export function BrainDumpView() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isRecording, setIsRecording] = useState(false);
-  const [savedCount, setSavedCount] = useState(0);
+  const [showSuccess, setShowSuccess] = useState(false);
   const navigate = useNavigate();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const recognitionRef = useRef<any>(null);
@@ -66,9 +66,9 @@ export function BrainDumpView() {
     setError(null);
 
     try {
-      const result = await processThought(text);
-      setSavedCount(result.items.length);
-      setTimeout(() => navigate("/backlog"), 1200);
+      await processThought(text);
+      setShowSuccess(true);
+      setTimeout(() => navigate("/backlog"), 2000);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to process");
       setIsProcessing(false);
@@ -120,7 +120,7 @@ export function BrainDumpView() {
             ) : (
               <button
                 onClick={handleProcess}
-                disabled={!text.trim() || savedCount > 0}
+                disabled={!text.trim() || isProcessing}
                 className="flex items-center gap-2 px-4 h-10 rounded-full bg-[#E0664C] text-white hover:bg-[#c95a42] shadow-[0_2px_8px_rgba(224,102,76,0.25)] active:scale-95 transition-all duration-200 transform-gpu will-change-transform disabled:opacity-40 disabled:cursor-not-allowed"
                 style={{ transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)" }}
               >
@@ -144,23 +144,48 @@ export function BrainDumpView() {
             </motion.div>
           )}
         </AnimatePresence>
-
-        <AnimatePresence>
-          {savedCount > 0 && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.2, ease: "easeOut" }}
-              className="fixed md:absolute bottom-20 md:bottom-0 right-6 md:right-0"
-            >
-              <div className="flex items-center gap-3 px-6 py-3.5 bg-emerald-50 text-emerald-700 font-medium rounded-full border border-emerald-200">
-                <CheckCircle2 className="w-4 h-4" />
-                <span>{savedCount} items saved</span>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
       </div>
+
+      <AnimatePresence>
+        {showSuccess && (
+          <motion.div
+            className="fixed inset-0 z-[100] bg-white flex items-center justify-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25 }}
+          >
+            <div className="flex flex-col items-center gap-6">
+              <svg width="96" height="96" viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="48" cy="48" r="44" stroke="#22c55e" strokeWidth="4" fill="none"
+                  strokeDasharray="276.46" strokeDashoffset="276.46" strokeLinecap="round"
+                  style={{ animation: "drawCircle 0.6s ease forwards" }}
+                />
+                <path d="M28 48 L42 62 L68 36" stroke="#22c55e" strokeWidth="4" fill="none"
+                  strokeDasharray="60" strokeDashoffset="60" strokeLinecap="round" strokeLinejoin="round"
+                  style={{ animation: "drawCheck 0.4s ease 0.4s forwards" }}
+                />
+              </svg>
+              <motion.p
+                className="text-lg font-serif text-[#222]"
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.7, duration: 0.3 }}
+              >
+                Done
+              </motion.p>
+            </div>
+            <style>{`
+              @keyframes drawCircle {
+                to { stroke-dashoffset: 0; }
+              }
+              @keyframes drawCheck {
+                to { stroke-dashoffset: 0; }
+              }
+            `}</style>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
