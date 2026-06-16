@@ -105,7 +105,7 @@ export function Layout() {
             <div className="relative">
               <GlassCircle size={40} />
               <div className="absolute inset-0 flex items-center justify-center">
-                <SparkLoader size={20} />
+                <SparkLoader size={20} animated={false} />
               </div>
             </div>
             <span className="font-semibold tracking-tight text-base text-[#222]">BrainFlow</span>

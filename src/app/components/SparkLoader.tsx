@@ -1,13 +1,14 @@
 interface SparkLoaderProps {
   size?: number;
   className?: string;
+  animated?: boolean;
 }
 
-export function SparkLoader({ size = 48, className = "" }: SparkLoaderProps) {
+export function SparkLoader({ size = 48, className = "", animated = true }: SparkLoaderProps) {
   return (
     <svg
       viewBox="0 0 100 100"
-      className={`ai-spark-loader ${className}`}
+      className={`${animated ? "ai-spark-loader" : ""} ${className}`}
       xmlns="http://www.w3.org/2000/svg"
       style={{ width: size, height: size }}
     >

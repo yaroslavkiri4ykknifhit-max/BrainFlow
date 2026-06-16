@@ -141,7 +141,7 @@ export function BrainDumpView() {
                 className="group flex items-center gap-3 px-6 py-3.5 bg-[#E0664C] text-white font-medium rounded-full shadow-lg shadow-[#E0664C]/20 hover:bg-[#c95a42] hover:shadow-xl hover:shadow-[#E0664C]/30 transition-all duration-200 transform-gpu will-change-transform active:scale-95"
                 style={{ transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)" }}
               >
-                <SparkLoader size={16} className="brightness-0 invert" />
+                <SparkLoader size={16} className="brightness-0 invert" animated={false} />
                 <span>Process</span>
                 <div className="hidden md:flex items-center gap-1 text-[10px] font-sans ml-2 bg-white/20 px-2 py-0.5 rounded-full">
                   <span className="font-mono">⌘</span>
