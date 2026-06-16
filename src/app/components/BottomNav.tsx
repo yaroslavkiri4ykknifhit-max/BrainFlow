@@ -1,144 +1,106 @@
 import { useNavigate, useLocation } from "react-router";
-import { useRef, useEffect, useCallback } from "react";
-
-interface NavItem {
-  label: string;
-  path: string;
-}
-
-const navItems: NavItem[] = [
-  { label: "Фокус", path: "/" },
-  { label: "Поток мыслей", path: "/dump" },
-  { label: "Бэклог", path: "/backlog" },
-];
+import { useEffect, useRef } from "react";
 
 export function BottomNav() {
   const navigate = useNavigate();
   const location = useLocation();
-  const containerRef = useRef<HTMLDivElement>(null);
-  const pillRef = useRef<HTMLDivElement>(null);
-  const stateRef = useRef({
-    isDragging: false,
-    startX: 0,
-    currentX: 0,
-    maxDrag: 0,
-    pillWidth: 0,
-  });
+  const initRef = useRef(false);
 
-  const activeIndex = navItems.findIndex((item) => location.pathname === item.path);
+  useEffect(() => {
+    const pill = document.getElementById("active-pill");
+    const btnFocus = document.getElementById("btn-focus");
+    const btnBacklog = document.getElementById("btn-backlog");
 
-  const getIndexFromPath = useCallback((path: string) => {
-    return navItems.findIndex((item) => item.path === path);
-  }, []);
+    if (!pill || !btnFocus || !btnBacklog) return;
 
-  const getPillOffset = useCallback((index: number, maxDrag: number) => {
-    return index === 0 ? 0 : index * (maxDrag / (navItems.length - 1));
-  }, []);
+    if (!initRef.current) {
+      initRef.current = true;
 
-  const updatePillPosition = useCallback((x: number, animate = true) => {
-    const pill = pillRef.current;
-    if (!pill) return;
-    if (animate) {
-      pill.style.transition = "transform 300ms cubic-bezier(0.165, 0.84, 0.44, 1)";
-    } else {
-      pill.style.transition = "none";
-    }
-    pill.style.transform = `translateX(${x}px)`;
-  }, []);
+      let activeTab = 0;
+      let isDragging = false;
+      let startX = 0;
 
-  const snapToNearest = useCallback((x: number) => {
-    const state = stateRef.current;
-    const segmentWidth = state.maxDrag / (navItems.length - 1);
-    const nearestIndex = Math.round(x / segmentWidth);
-    const clampedIndex = Math.max(0, Math.min(navItems.length - 1, nearestIndex));
-    const snapX = getPillOffset(clampedIndex, state.maxDrag);
+      function setTab(index: number) {
+        activeTab = index;
 
-    updatePillPosition(snapX, true);
-
-    if (clampedIndex !== activeIndex) {
-      navigate(navItems[clampedIndex].path);
-    }
-
-    requestAnimationFrame(() => {
-      const pill = pillRef.current;
-      if (pill) {
         pill.style.transform = "";
         pill.style.transition = "";
+
+        if (index === 0) {
+          pill.classList.remove("translate-x-full");
+          pill.classList.add("translate-x-0");
+          btnFocus.classList.replace("text-[#888888]", "text-black");
+          btnBacklog.classList.replace("text-black", "text-[#888888]");
+        } else {
+          pill.classList.remove("translate-x-0");
+          pill.classList.add("translate-x-full");
+          btnBacklog.classList.replace("text-[#888888]", "text-black");
+          btnFocus.classList.replace("text-black", "text-[#888888]");
+        }
       }
-    });
-  }, [activeIndex, navigate, getPillOffset, updatePillPosition]);
 
-  useEffect(() => {
-    const container = containerRef.current;
-    const pill = pillRef.current;
-    if (!container || !pill) return;
+      const initIndex = location.pathname === "/backlog" ? 1 : 0;
+      setTab(initIndex);
 
-    const calcDimensions = () => {
-      const state = stateRef.current;
-      const containerRect = container.getBoundingClientRect();
-      const pillRect = pill.getBoundingClientRect();
-      const p = parseFloat(getComputedStyle(container).paddingLeft) * 2;
-      state.pillWidth = pillRect.width;
-      state.maxDrag = containerRect.width - p - state.pillWidth;
-    };
+      btnFocus.addEventListener("click", () => {
+        setTab(0);
+        navigate("/");
+      });
+      btnBacklog.addEventListener("click", () => {
+        setTab(1);
+        navigate("/backlog");
+      });
 
-    const onPointerDown = (e: PointerEvent) => {
-      const state = stateRef.current;
-      calcDimensions();
-      state.isDragging = true;
-      state.startX = e.clientX;
-      state.currentX = e.clientX;
-      pill.style.transition = "none";
-      pill.style.cursor = "grabbing";
-      (pill as HTMLElement).setPointerCapture(e.pointerId);
-    };
+      pill.addEventListener("pointerdown", (e: PointerEvent) => {
+        isDragging = true;
+        startX = e.clientX;
+        pill.style.transition = "none";
+        pill.setPointerCapture(e.pointerId);
+      });
 
-    const onPointerMove = (e: PointerEvent) => {
-      const state = stateRef.current;
-      if (!state.isDragging) return;
+      pill.addEventListener("pointermove", (e: PointerEvent) => {
+        if (!isDragging) return;
 
-      const delta = e.clientX - state.startX;
-      let newX = getPillOffset(activeIndex, state.maxDrag) + delta;
-      newX = Math.max(0, Math.min(state.maxDrag, newX));
-      state.currentX = newX;
+        const deltaX = e.clientX - startX;
+        const pillWidth = pill.offsetWidth;
 
-      pill.style.transform = `translateX(${newX}px)`;
-    };
+        let baseTranslate = activeTab === 0 ? 0 : pillWidth;
+        let newTranslate = baseTranslate + deltaX;
 
-    const onPointerUp = (e: PointerEvent) => {
-      const state = stateRef.current;
-      if (!state.isDragging) return;
-      state.isDragging = false;
-      pill.style.cursor = "";
-      snapToNearest(state.currentX);
-    };
+        if (newTranslate < 0) newTranslate = 0;
+        if (newTranslate > pillWidth) newTranslate = pillWidth;
 
-    pill.addEventListener("pointerdown", onPointerDown);
-    window.addEventListener("pointermove", onPointerMove);
-    window.addEventListener("pointerup", onPointerUp);
-    window.addEventListener("pointercancel", onPointerUp);
+        pill.style.transform = `translateX(${newTranslate}px)`;
+      });
 
-    calcDimensions();
-    window.addEventListener("resize", calcDimensions);
+      pill.addEventListener("pointerup", (e: PointerEvent) => {
+        if (!isDragging) return;
+        isDragging = false;
 
-    return () => {
-      pill.removeEventListener("pointerdown", onPointerDown);
-      window.removeEventListener("pointermove", onPointerMove);
-      window.removeEventListener("pointerup", onPointerUp);
-      window.removeEventListener("pointercancel", onPointerUp);
-      window.removeEventListener("resize", calcDimensions);
-    };
-  }, [activeIndex, getPillOffset, snapToNearest]);
+        const deltaX = e.clientX - startX;
+        const threshold = pill.offsetWidth / 3;
 
-  useEffect(() => {
-    if (pillRef.current) {
-      pillRef.current.style.transform = "";
+        if (activeTab === 0 && deltaX > threshold) {
+          setTab(1);
+          navigate("/backlog");
+        } else if (activeTab === 1 && deltaX < -threshold) {
+          setTab(0);
+          navigate("/");
+        } else {
+          setTab(activeTab);
+        }
+      });
+
+      pill.addEventListener("pointercancel", () => {
+        if (isDragging) {
+          isDragging = false;
+          setTab(activeTab);
+        }
+      });
     }
-  }, [activeIndex]);
+  }, [navigate, location.pathname]);
 
-  const handleSelect = (path: string) => {
-    navigate(path);
-  };
+  const activeIndex = location.pathname === "/backlog" ? 1 : 0;
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 pointer-events-none">
@@ -147,34 +109,31 @@ export function BottomNav() {
         style={{ paddingBottom: "max(1rem, env(safe-area-inset-bottom))" }}
       >
         <div
-          ref={containerRef}
           id="segmented-container"
-          className="relative flex w-full max-w-[360px] mx-4 p-1.5 bg-[#F2F2F7] rounded-full touch-none"
-          style={{ touchAction: "none" }}
+          className="relative flex w-full max-w-[360px] mx-4 p-1.5 bg-[#F2F2F7] rounded-full touch-none select-none"
         >
           <div
-            ref={pillRef}
             id="active-pill"
-            className="absolute top-1.5 bottom-1.5 left-1.5 w-[calc(33.333%-0.25rem)] bg-white rounded-full shadow-[0_3px_8px_rgba(0,0,0,0.12)] cursor-grab z-0"
-            style={{
-              transform: `translateX(calc(${activeIndex} * (100% + 0.125rem)))`,
-              transition: "transform 300ms cubic-bezier(0.165, 0.84, 0.44, 1)",
-            }}
+            className={`absolute top-1.5 bottom-1.5 left-1.5 w-[calc(50%-0.375rem)] bg-white rounded-full shadow-[0_3px_8px_rgba(0,0,0,0.12)] cursor-grab z-0 transition-transform duration-300 ease-[cubic-bezier(0.165,0.84,0.44,1)] ${
+              activeIndex === 1 ? "translate-x-[calc(100%+0.75rem)]" : "translate-x-0"
+            }`}
           />
-          {navItems.map((item) => {
-            const isActive = location.pathname === item.path;
-            return (
-              <button
-                key={item.path}
-                onClick={() => handleSelect(item.path)}
-                className={`relative z-10 flex-1 py-3 text-[14px] font-medium transition-colors duration-300 focus:outline-none select-none ${
-                  isActive ? "text-black" : "text-[#888888]"
-                }`}
-              >
-                {item.label}
-              </button>
-            );
-          })}
+          <button
+            id="btn-focus"
+            className={`relative z-10 flex-1 py-3 text-[14px] font-medium transition-colors duration-300 focus:outline-none select-none ${
+              activeIndex === 0 ? "text-black" : "text-[#888888]"
+            }`}
+          >
+            Поток мыслей
+          </button>
+          <button
+            id="btn-backlog"
+            className={`relative z-10 flex-1 py-3 text-[14px] font-medium transition-colors duration-300 focus:outline-none select-none ${
+              activeIndex === 1 ? "text-black" : "text-[#888888]"
+            }`}
+          >
+            Бэклог
+          </button>
         </div>
       </div>
     </div>
