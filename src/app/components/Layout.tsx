@@ -1,9 +1,10 @@
 import { Outlet, NavLink, useLocation } from "react-router";
-import { CircleDot, Plus, Layers, User, MoreHorizontal } from "lucide-react";
+import { CircleDot, Plus, Layers, User, MoreHorizontal, Lock } from "lucide-react";
 import { clsx } from "clsx";
 import { useState, useEffect } from "react";
 import { SparkLoader } from "./SparkLoader";
 import { BottomNav } from "./BottomNav";
+import { lock } from "./PinLock";
 
 function GlassCircle({ size = 48, className = "" }: { size?: number; className?: string }) {
   return (
@@ -122,6 +123,13 @@ export function Layout() {
               <p className="text-[10px] text-[#aaa] truncate">Founder</p>
             </div>
             <MoreHorizontal className="w-4 h-4 text-[#ccc] group-hover:text-[#888]" />
+          </button>
+          <button
+            onClick={() => { lock(); window.location.reload(); }}
+            className="flex items-center gap-3 w-full px-3 py-2 mt-1 rounded-xl hover:bg-zinc-50 transition-all duration-200 text-left group"
+          >
+            <Lock className="w-4 h-4 text-[#888]" />
+            <span className="text-sm text-[#888] group-hover:text-[#222]">Lock</span>
           </button>
         </div>
       </aside>
