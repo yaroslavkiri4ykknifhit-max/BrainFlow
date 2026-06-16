@@ -166,7 +166,7 @@ export function Layout() {
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 flex flex-col min-w-0 bg-white relative pb-24 md:pb-0">
+        <main className="flex-1 flex flex-col min-w-0 bg-white relative md:pb-0">
           {/* Mobile Top Nav */}
           <div className="md:hidden pt-[max(env(safe-area-inset-top),16px)] px-4 pb-2">
             <TopNav />

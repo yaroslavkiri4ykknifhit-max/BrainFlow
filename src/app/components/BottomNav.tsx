@@ -14,40 +14,36 @@ export function TopNav() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const activeIndex = navItems.findIndex((item) => location.pathname === item.path);
-  const isSecondActive = activeIndex === 1;
+  const isBacklog = location.pathname === "/backlog";
 
   const handleSelect = (path: string) => {
     navigate(path);
   };
 
   return (
-    <div className="relative w-full">
+    <div className="relative flex w-full max-w-[320px] mx-auto mt-4 p-1 bg-[#F2F2F7] rounded-full">
       <div
-        className="relative flex w-full p-1 bg-[#E0664C] rounded-full"
+        className="absolute top-1 bottom-1 left-1 w-[calc(50%-0.25rem)] bg-white rounded-full shadow-[0_3px_8px_rgba(0,0,0,0.12)] transition-transform duration-300 ease-[cubic-bezier(0.165,0.84,0.44,1)] transform"
+        style={{
+          transform: isBacklog ? "translateX(100%)" : "translateX(0)",
+        }}
+      />
+      <button
+        onClick={() => handleSelect("/dump")}
+        className={`relative z-10 flex-1 py-2 text-[15px] font-medium transition-colors duration-300 focus:outline-none ${
+          !isBacklog ? "text-black" : "text-[#888888]"
+        }`}
       >
-        <div
-          className="absolute top-1 bottom-1 w-[calc(50%-0.25rem)] bg-white rounded-full shadow-md z-0"
-          style={{
-            left: isSecondActive ? "calc(50% + 0.25rem)" : "0.25rem",
-            transition: "left 400ms cubic-bezier(0.165, 0.84, 0.44, 1.0)",
-          }}
-        />
-        {navItems.map((item) => {
-          const isActive = location.pathname === item.path;
-          return (
-            <button
-              key={item.path}
-              onClick={() => handleSelect(item.path)}
-              className={`relative z-10 w-1/2 text-center py-3 text-sm rounded-full font-medium transition-colors duration-400 ${
-                isActive ? "text-[#E0664C]" : "text-white/70"
-              }`}
-            >
-              {item.label}
-            </button>
-          );
-        })}
-      </div>
+        Поток мыслей
+      </button>
+      <button
+        onClick={() => handleSelect("/backlog")}
+        className={`relative z-10 flex-1 py-2 text-[15px] font-medium transition-colors duration-300 focus:outline-none ${
+          isBacklog ? "text-black" : "text-[#888888]"
+        }`}
+      >
+        Бэклог
+      </button>
     </div>
   );
 }
