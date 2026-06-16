@@ -1,5 +1,8 @@
 import { useNavigate, useLocation } from "react-router";
 import { useEffect, useRef } from "react";
+import { CircleDot, Plus, Layers } from "lucide-react";
+
+const icons = [CircleDot, Plus, Layers];
 
 export function BottomNav() {
   const navigate = useNavigate();
@@ -33,10 +36,13 @@ export function BottomNav() {
         if (index === 2) pill.classList.add("translate-x-[200%]");
 
         buttons.forEach((btn, i) => {
+          const icon = btn.querySelector("svg");
           if (i === index) {
-            btn.classList.replace("text-[#888888]", "text-black");
+            btn.classList.replace("text-[#888]", "text-[#E0664C]");
+            if (icon) icon.classList.replace("text-[#888]", "text-[#E0664C]");
           } else {
-            btn.classList.replace("text-black", "text-[#888888]");
+            btn.classList.replace("text-[#E0664C]", "text-[#888]");
+            if (icon) icon.classList.replace("text-[#E0664C]", "text-[#888]");
           }
         });
       }
@@ -96,6 +102,7 @@ export function BottomNav() {
   }, [navigate, location.pathname]);
 
   const routes = ["/", "/dump", "/backlog"];
+  const labels = ["Фокус", "Поток", "Бэклог"];
   const activeIndex = routes.indexOf(location.pathname);
   const safeIndex = activeIndex >= 0 ? activeIndex : 0;
 
@@ -107,11 +114,11 @@ export function BottomNav() {
       >
         <div
           id="segmented-container"
-          className="relative flex w-full max-w-[380px] mx-4 p-1 bg-[#F2F2F7] rounded-full touch-none select-none"
+          className="relative flex items-center w-full max-w-[380px] mx-4 p-1 bg-white border border-zinc-200 rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.06)] touch-none select-none"
         >
           <div
             id="active-pill"
-            className={`absolute top-1 bottom-1 left-1 w-[calc(33.333%-0.25rem)] bg-white rounded-full shadow-[0_3px_8px_rgba(0,0,0,0.12)] transition-transform duration-300 ease-[cubic-bezier(0.165,0.84,0.44,1)] cursor-grab z-0 ${
+            className={`absolute top-1 bottom-1 left-1 w-[calc(33.333%-0.25rem)] bg-[#E0664C] rounded-xl transition-transform duration-300 ease-[cubic-bezier(0.165,0.84,0.44,1)] cursor-grab z-0 shadow-[0_2px_8px_rgba(224,102,76,0.3)] ${
               safeIndex === 1
                 ? "translate-x-full"
                 : safeIndex === 2
@@ -119,30 +126,18 @@ export function BottomNav() {
                 : "translate-x-0"
             }`}
           />
-          <button
-            className={`tab-btn relative z-10 flex-1 py-2 text-[13px] font-medium transition-colors duration-300 focus:outline-none select-none ${
-              safeIndex === 0 ? "text-black" : "text-[#888888]"
-            }`}
-            data-index="0"
-          >
-            Фокус
-          </button>
-          <button
-            className={`tab-btn relative z-10 flex-1 py-2 text-[13px] font-medium transition-colors duration-300 focus:outline-none select-none ${
-              safeIndex === 1 ? "text-black" : "text-[#888888]"
-            }`}
-            data-index="1"
-          >
-            Поток
-          </button>
-          <button
-            className={`tab-btn relative z-10 flex-1 py-2 text-[13px] font-medium transition-colors duration-300 focus:outline-none select-none ${
-              safeIndex === 2 ? "text-black" : "text-[#888888]"
-            }`}
-            data-index="2"
-          >
-            Бэклог
-          </button>
+          {icons.map((Icon, i) => (
+            <button
+              key={i}
+              className={`tab-btn relative z-10 flex-1 flex flex-col items-center gap-1 py-2 text-[11px] font-medium transition-colors duration-300 focus:outline-none select-none ${
+                safeIndex === i ? "text-white" : "text-[#888]"
+              }`}
+              data-index={i.toString()}
+            >
+              <Icon className="w-4.5 h-4.5" />
+              <span>{labels[i]}</span>
+            </button>
+          ))}
         </div>
       </div>
     </div>

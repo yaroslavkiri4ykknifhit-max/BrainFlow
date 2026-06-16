@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Mic, MicOff, CheckCircle2 } from "lucide-react";
+import { Mic, MicOff, CheckCircle2, Sparkles } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { useNavigate } from "react-router";
 import { processThought } from "../../lib/supabase";
@@ -96,21 +96,51 @@ export function BrainDumpView() {
             onChange={(e) => setText(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="I need to fix the database bug, also maybe write a post about scaling, oh and buy coffee beans..."
-            className="w-full bg-transparent border-0 outline-none resize-none text-xl md:text-3xl font-serif leading-snug md:leading-relaxed text-[#222] placeholder:text-zinc-300 min-h-[200px] pr-12"
+            className="w-full bg-transparent border-0 outline-none resize-none text-xl md:text-3xl font-serif leading-snug md:leading-relaxed text-[#222] placeholder:text-zinc-300 min-h-[200px] pr-20"
             autoFocus
             disabled={isProcessing}
           />
-          <button
-            onClick={toggleRecording}
-            className={`absolute bottom-2 right-0 w-8 h-8 flex items-center justify-center rounded-full transition-all duration-200 transform-gpu will-change-transform ${
-              isRecording
-                ? "text-[#ff4d4f] animate-pulse bg-red-50"
-                : "text-[#aaa] hover:text-[#666]"
-            }`}
-            style={{ transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)" }}
-          >
-            {isRecording ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
-          </button>
+          <div className="absolute bottom-2 right-0 flex items-center gap-2">
+            <button
+              onClick={toggleRecording}
+              className={`w-10 h-10 flex items-center justify-center rounded-full transition-all duration-200 transform-gpu will-change-transform ${
+                isRecording
+                  ? "text-white bg-[#E0664C] shadow-[0_0_16px_rgba(224,102,76,0.45)] animate-pulse"
+                  : "text-black bg-zinc-100 hover:bg-zinc-200"
+              }`}
+              style={{ transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)" }}
+            >
+              {isRecording ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+            </button>
+            <AnimatePresence>
+              {text.trim() && !isProcessing && !savedCount && (
+                <motion.button
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  transition={{ duration: 0.15 }}
+                  onClick={handleProcess}
+                  className="w-10 h-10 flex items-center justify-center rounded-full bg-[#E0664C] text-white hover:bg-[#c95a42] shadow-[0_2px_8px_rgba(224,102,76,0.25)] active:scale-90 transition-all duration-200 transform-gpu will-change-transform"
+                  style={{ transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)" }}
+                >
+                  <Sparkles className="w-4 h-4" />
+                </motion.button>
+              )}
+            </AnimatePresence>
+            <AnimatePresence>
+              {isProcessing && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  transition={{ duration: 0.15 }}
+                  className="w-10 h-10 flex items-center justify-center rounded-full bg-white border border-zinc-200"
+                >
+                  <SparkLoader size={16} />
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         </div>
 
         <AnimatePresence>
@@ -123,48 +153,6 @@ export function BrainDumpView() {
               className="fixed md:absolute bottom-36 md:bottom-16 right-6 md:right-0 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm max-w-sm"
             >
               {error}
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        <AnimatePresence>
-          {text.trim() && !isProcessing && !savedCount && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2, ease: "easeOut" }}
-              className="fixed md:absolute bottom-20 md:bottom-0 right-6 md:right-0"
-            >
-              <button
-                onClick={handleProcess}
-                className="group flex items-center gap-3 px-6 py-3.5 bg-[#E0664C] text-white font-medium rounded-full shadow-lg shadow-[#E0664C]/20 hover:bg-[#c95a42] hover:shadow-xl hover:shadow-[#E0664C]/30 transition-all duration-200 transform-gpu will-change-transform active:scale-95"
-                style={{ transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)" }}
-              >
-                <SparkLoader size={16} className="brightness-0 invert" animated={false} />
-                <span>Process</span>
-                <div className="hidden md:flex items-center gap-1 text-[10px] font-sans ml-2 bg-white/20 px-2 py-0.5 rounded-full">
-                  <span className="font-mono">⌘</span>
-                  <span className="font-mono">↵</span>
-                </div>
-              </button>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        <AnimatePresence>
-          {isProcessing && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2, ease: "easeOut" }}
-              className="fixed md:absolute bottom-20 md:bottom-0 right-6 md:right-0"
-            >
-              <div className="flex items-center gap-3 px-6 py-3.5 bg-white border border-zinc-200 text-[#222] font-medium rounded-full shadow-sm">
-                <SparkLoader size={18} />
-                <span>Sorting chaos...</span>
-              </div>
             </motion.div>
           )}
         </AnimatePresence>
