@@ -3,12 +3,13 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import { CircleDot, Plus, Layers } from "lucide-react";
 
 const icons = [CircleDot, Plus, Layers];
+const routes = ["/", "/dump", "/backlog"];
+const labels = ["Фокус", "Поток", "Бэклог"];
 
 export function BottomNav() {
   const navigate = useNavigate();
   const location = useLocation();
   const [activeIndex, setActiveIndex] = useState(() => {
-    const routes = ["/", "/dump", "/backlog"];
     const i = routes.indexOf(location.pathname);
     return i >= 0 ? i : 0;
   });
@@ -17,26 +18,20 @@ export function BottomNav() {
   const isDragging = useRef(false);
   const startX = useRef(0);
 
-  const routes = ["/", "/dump", "/backlog"];
-  const labels = ["Фокус", "Поток", "Бэклог"];
-
   const movePill = useCallback((index: number) => {
     const pill = pillRef.current;
-    if (!pill) return;
-    const tabs = pill.parentElement?.querySelectorAll(".tab-btn");
-    if (!tabs || tabs.length === 0) return;
+    const container = containerRef.current;
+    if (!pill || !container) return;
+    const tabs = container.querySelectorAll(".tab-btn");
+    if (!tabs[index]) return;
     const target = tabs[index] as HTMLElement;
-    if (!target) return;
-    const container = pill.parentElement as HTMLElement;
     const containerRect = container.getBoundingClientRect();
-    const pillRect = pill.getBoundingClientRect();
     const targetRect = target.getBoundingClientRect();
-    const offset = targetRect.left - containerRect.left - (pillRect.width - targetRect.width) / 2;
+    const offset = targetRect.left - containerRect.left - 4;
     pill.style.transform = `translateX(${offset}px)`;
   }, []);
 
   useEffect(() => {
-    const routes = ["/", "/dump", "/backlog"];
     const i = routes.indexOf(location.pathname);
     const idx = i >= 0 ? i : 0;
     setActiveIndex(idx);
@@ -57,9 +52,11 @@ export function BottomNav() {
 
     function onPointerMove(e: PointerEvent) {
       if (!isDragging.current) return;
+      const tabs = container.querySelectorAll(".tab-btn");
+      const tabWidth = tabs[0]?.getBoundingClientRect().width || 0;
       const dx = e.clientX - startX.current;
-      const base = activeIndex * pill.offsetWidth;
-      const max = 2 * pill.offsetWidth;
+      const base = activeIndex * tabWidth;
+      const max = 2 * tabWidth;
       const x = Math.max(0, Math.min(max, base + dx));
       pill.style.transform = `translateX(${x}px)`;
     }
@@ -68,8 +65,10 @@ export function BottomNav() {
       if (!isDragging.current) return;
       isDragging.current = false;
       pill.style.transition = "transform 300ms cubic-bezier(0.165,0.84,0.44,1)";
+      const tabs = container.querySelectorAll(".tab-btn");
+      const tabWidth = tabs[0]?.getBoundingClientRect().width || 0;
       const matrix = new DOMMatrix(getComputedStyle(pill).transform);
-      const closest = Math.round(matrix.m41 / pill.offsetWidth);
+      const closest = Math.round(matrix.m41 / tabWidth);
       const idx = Math.max(0, Math.min(2, closest));
       setActiveIndex(idx);
       navigate(routes[idx]);
@@ -118,9 +117,7 @@ export function BottomNav() {
                 setActiveIndex(i);
                 navigate(routes[i]);
               }}
-              className={`relative z-10 flex-1 flex flex-col items-center gap-1 py-2 text-[11px] font-medium transition-colors duration-300 focus:outline-none select-none ${
-                activeIndex === i ? "text-white" : "text-[#888]"
-              }`}
+              className="tab-btn relative z-10 flex-1 flex flex-col items-center gap-1 py-2 text-[11px] font-medium text-[#222] focus:outline-none select-none"
             >
               <Icon className="w-4.5 h-4.5" />
               <span>{labels[i]}</span>
