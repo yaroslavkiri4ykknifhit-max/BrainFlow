@@ -2,6 +2,7 @@ import { useState } from "react";
 import { RouterProvider } from "react-router";
 import { router } from "./routes";
 import { PinLock, isUnlocked } from "./components/PinLock";
+import { InstallPrompt } from "./components/InstallPrompt";
 
 export default function App() {
   const [unlocked, setUnlocked] = useState(isUnlocked);
@@ -10,5 +11,10 @@ export default function App() {
     return <PinLock onUnlock={() => setUnlocked(true)} />;
   }
 
-  return <RouterProvider router={router} />;
+  return (
+    <>
+      <RouterProvider router={router} />
+      <InstallPrompt />
+    </>
+  );
 }
