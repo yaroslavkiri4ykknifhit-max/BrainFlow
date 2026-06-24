@@ -11,6 +11,9 @@ export interface Item {
   created_at: string;
   parent_id?: string | null;
   tier?: number;
+  position_x?: number;
+  position_y?: number;
+  locked?: boolean;
 }
 
 export interface Dump {

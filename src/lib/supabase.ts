@@ -113,6 +113,25 @@ export async function processThought(text: string): Promise<ProcessResponse> {
   return res.json();
 }
 
+const METADATA_KEY = "brainflow_roadmap_metadata";
+
+interface RoadmapMetadata {
+  parent_id?: string | null;
+  tier?: number;
+  position_x?: number;
+  position_y?: number;
+  locked?: boolean;
+}
+
+function getLocalMetadata(): Record<string, RoadmapMetadata> {
+  const data = localStorage.getItem(METADATA_KEY);
+  return data ? JSON.parse(data) : {};
+}
+
+function saveLocalMetadata(metadata: Record<string, RoadmapMetadata>) {
+  localStorage.setItem(METADATA_KEY, JSON.stringify(metadata));
+}
+
 export async function getItems(): Promise<Item[]> {
   if (isMock) {
     let items = getLocalItems();
@@ -163,7 +182,10 @@ export async function getItems(): Promise<Item[]> {
           completed: true,
           created_at: new Date(Date.now() - 20000000).toISOString(),
           parent_id: null,
-          tier: 1
+          tier: 1,
+          position_x: 200,
+          position_y: 120,
+          locked: false
         },
         {
           id: "g2",
@@ -174,7 +196,10 @@ export async function getItems(): Promise<Item[]> {
           completed: false,
           created_at: new Date(Date.now() - 18000000).toISOString(),
           parent_id: null,
-          tier: 1
+          tier: 1,
+          position_x: 600,
+          position_y: 120,
+          locked: false
         },
         {
           id: "g3",
@@ -185,7 +210,10 @@ export async function getItems(): Promise<Item[]> {
           completed: false,
           created_at: new Date(Date.now() - 16000000).toISOString(),
           parent_id: "g1",
-          tier: 2
+          tier: 2,
+          position_x: 200,
+          position_y: 320,
+          locked: false
         },
         {
           id: "g4",
@@ -196,7 +224,10 @@ export async function getItems(): Promise<Item[]> {
           completed: false,
           created_at: new Date(Date.now() - 14000000).toISOString(),
           parent_id: "g2",
-          tier: 2
+          tier: 2,
+          position_x: 600,
+          position_y: 320,
+          locked: false
         },
         {
           id: "g5",
@@ -207,12 +238,26 @@ export async function getItems(): Promise<Item[]> {
           completed: false,
           created_at: new Date(Date.now() - 12000000).toISOString(),
           parent_id: "g3",
-          tier: 3
+          tier: 3,
+          position_x: 400,
+          position_y: 520,
+          locked: false
         }
       ];
       saveLocalItems(items);
     }
-    return items;
+    const localMeta = getLocalMetadata();
+    return items.map((item) => {
+      const meta = localMeta[item.id] || {};
+      return {
+        ...item,
+        parent_id: meta.parent_id !== undefined ? meta.parent_id : (item.parent_id || null),
+        tier: meta.tier !== undefined ? meta.tier : (item.tier || 1),
+        position_x: meta.position_x !== undefined ? meta.position_x : (item.position_x || 100),
+        position_y: meta.position_y !== undefined ? meta.position_y : (item.position_y || 100),
+        locked: meta.locked !== undefined ? meta.locked : (item.locked || false),
+      };
+    });
   }
 
   const { data, error } = await supabase
@@ -221,7 +266,21 @@ export async function getItems(): Promise<Item[]> {
     .order("created_at", { ascending: false });
 
   if (error) throw error;
-  return data ?? [];
+
+  const localMeta = getLocalMetadata();
+  const mergedItems = (data ?? []).map((item: any) => {
+    const meta = localMeta[item.id] || {};
+    return {
+      ...item,
+      parent_id: item.parent_id !== undefined && item.parent_id !== null ? item.parent_id : (meta.parent_id !== undefined ? meta.parent_id : null),
+      tier: item.tier !== undefined && item.tier !== null ? item.tier : (meta.tier !== undefined ? meta.tier : 1),
+      position_x: item.position_x !== undefined && item.position_x !== null ? item.position_x : (meta.position_x !== undefined ? meta.position_x : 100),
+      position_y: item.position_y !== undefined && item.position_y !== null ? item.position_y : (meta.position_y !== undefined ? meta.position_y : 100),
+      locked: item.locked !== undefined && item.locked !== null ? item.locked : (meta.locked !== undefined ? meta.locked : false),
+    };
+  });
+
+  return mergedItems;
 }
 
 export async function getCurrentTask(): Promise<Item | null> {
@@ -255,7 +314,13 @@ async function recursiveUncomplete(parentId: string, allItems: Item[]): Promise<
       updatedItems = updatedItems.map((i) => i.id === child.id ? { ...i, completed: false } : i);
       
       if (!isMock) {
-        await supabase.from("items").update({ completed: false }).eq("id", child.id);
+        try {
+          await supabase.from("items").update({ completed: false }).eq("id", child.id);
+        } catch (err) {
+          console.warn("Could not recursively uncomplete child in DB:", err);
+        }
+      } else {
+        saveLocalItems(updatedItems);
       }
       
       updatedItems = await recursiveUncomplete(child.id, updatedItems);
@@ -283,14 +348,19 @@ export async function completeItem(id: string, completed: boolean = true): Promi
   if (error) throw error;
 
   if (!completed) {
-    const { data: allItems } = await supabase.from("items").select("*");
-    if (allItems) {
-      await recursiveUncomplete(id, allItems);
-    }
+    const allItems = await getItems();
+    await recursiveUncomplete(id, allItems);
   }
 }
 
-export async function createRoadmapNode(text: string, tier: number, parentId: string | null): Promise<Item> {
+export async function createRoadmapNode(
+  text: string,
+  tier: number,
+  parentId: string | null,
+  x: number = 100,
+  y: number = 100,
+  locked: boolean = false
+): Promise<Item> {
   const newItem = {
     dump_id: isMock ? "mock" : "00000000-0000-0000-0000-000000000000",
     text,
@@ -298,7 +368,10 @@ export async function createRoadmapNode(text: string, tier: number, parentId: st
     timeline: null,
     completed: false,
     parent_id: parentId,
-    tier
+    tier,
+    position_x: x,
+    position_y: y,
+    locked
   };
 
   if (isMock) {
@@ -309,6 +382,18 @@ export async function createRoadmapNode(text: string, tier: number, parentId: st
     };
     const items = getLocalItems();
     saveLocalItems([createdItem, ...items]);
+
+    // Save local metadata too so it's consistent
+    const localMeta = getLocalMetadata();
+    localMeta[createdItem.id] = {
+      parent_id: parentId,
+      tier,
+      position_x: x,
+      position_y: y,
+      locked
+    };
+    saveLocalMetadata(localMeta);
+
     return createdItem;
   }
 
@@ -329,17 +414,105 @@ export async function createRoadmapNode(text: string, tier: number, parentId: st
     dumpId = newDump.id;
   }
 
-  const { data, error } = await supabase
-    .from("items")
-    .insert([{
-      ...newItem,
-      dump_id: dumpId
-    }])
-    .select()
-    .single();
+  // Try to insert with custom columns first
+  try {
+    const { data, error } = await supabase
+      .from("items")
+      .insert([{
+        ...newItem,
+        dump_id: dumpId
+      }])
+      .select()
+      .single();
 
-  if (error) throw error;
-  return data;
+    if (error) throw error;
+    return data;
+  } catch (err: any) {
+    console.warn("Inserting custom columns failed (schema might not be updated). Falling back to localStorage metadata:", err);
+    
+    // Fallback: insert with standard columns
+    const fallbackNewItem = {
+      dump_id: dumpId,
+      text,
+      category: "goal" as const,
+      timeline: null,
+      completed: false
+    };
+
+    const { data, error } = await supabase
+      .from("items")
+      .insert([fallbackNewItem])
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    // Save custom attributes locally
+    const localMeta = getLocalMetadata();
+    localMeta[data.id] = {
+      parent_id: parentId,
+      tier,
+      position_x: x,
+      position_y: y,
+      locked
+    };
+    saveLocalMetadata(localMeta);
+
+    return {
+      ...data,
+      parent_id: parentId,
+      tier,
+      position_x: x,
+      position_y: y,
+      locked
+    };
+  }
+}
+
+export async function updateNodePosition(id: string, x: number, y: number): Promise<void> {
+  const localMeta = getLocalMetadata();
+  localMeta[id] = { ...localMeta[id], position_x: x, position_y: y };
+  saveLocalMetadata(localMeta);
+
+  if (isMock) {
+    const items = getLocalItems();
+    const updated = items.map(i => i.id === id ? { ...i, position_x: x, position_y: y } : i);
+    saveLocalItems(updated);
+    return;
+  }
+
+  try {
+    const { error } = await supabase
+      .from("items")
+      .update({ position_x: x, position_y: y })
+      .eq("id", id);
+    if (error) throw error;
+  } catch (err) {
+    console.warn("Could not save position to database, using local settings fallback:", err);
+  }
+}
+
+export async function updateNodeLockState(id: string, locked: boolean): Promise<void> {
+  const localMeta = getLocalMetadata();
+  localMeta[id] = { ...localMeta[id], locked };
+  saveLocalMetadata(localMeta);
+
+  if (isMock) {
+    const items = getLocalItems();
+    const updated = items.map(i => i.id === id ? { ...i, locked } : i);
+    saveLocalItems(updated);
+    return;
+  }
+
+  try {
+    const { error } = await supabase
+      .from("items")
+      .update({ locked })
+      .eq("id", id);
+    if (error) throw error;
+  } catch (err) {
+    console.warn("Could not save lock state to database, using local settings fallback:", err);
+  }
 }
 
 export async function deleteItem(id: string): Promise<void> {
