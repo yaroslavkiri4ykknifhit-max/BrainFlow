@@ -1,5 +1,5 @@
 import { Outlet, NavLink, useLocation } from "react-router";
-import { CircleDot, Plus, Layers, User, MoreHorizontal, Lock } from "lucide-react";
+import { CircleDot, Plus, Layers, User, MoreHorizontal, Lock, Network } from "lucide-react";
 import { clsx } from "clsx";
 import { useState, useEffect } from "react";
 import { SparkLoader } from "./SparkLoader";
@@ -60,6 +60,7 @@ export function Layout() {
     { to: "/", icon: CircleDot, label: "Фокус" },
     { to: "/dump", icon: Plus, label: "Brain Dump" },
     { to: "/backlog", icon: Layers, label: "Бэклог" },
+    { to: "/roadmap", icon: Network, label: "Роадмап" },
   ];
 
   return (

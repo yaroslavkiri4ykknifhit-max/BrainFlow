@@ -9,6 +9,8 @@ export interface Item {
   timeline: Timeline;
   completed: boolean;
   created_at: string;
+  parent_id?: string | null;
+  tier?: number;
 }
 
 export interface Dump {

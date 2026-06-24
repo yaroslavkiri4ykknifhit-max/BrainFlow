@@ -153,6 +153,61 @@ export async function getItems(): Promise<Item[]> {
           timeline: "today",
           completed: true,
           created_at: new Date(Date.now() - 10800000).toISOString()
+        },
+        {
+          id: "g1",
+          dump_id: "mock",
+          text: "Закрыть 3 чека по $1500",
+          category: "goal",
+          timeline: null,
+          completed: true,
+          created_at: new Date(Date.now() - 20000000).toISOString(),
+          parent_id: null,
+          tier: 1
+        },
+        {
+          id: "g2",
+          dump_id: "mock",
+          text: "Нанять первого ассистента",
+          category: "goal",
+          timeline: null,
+          completed: false,
+          created_at: new Date(Date.now() - 18000000).toISOString(),
+          parent_id: null,
+          tier: 1
+        },
+        {
+          id: "g3",
+          dump_id: "mock",
+          text: "Выйти на стабильные $5000/мес",
+          category: "goal",
+          timeline: null,
+          completed: false,
+          created_at: new Date(Date.now() - 16000000).toISOString(),
+          parent_id: "g1",
+          tier: 2
+        },
+        {
+          id: "g4",
+          dump_id: "mock",
+          text: "Автоматизировать продажи",
+          category: "goal",
+          timeline: null,
+          completed: false,
+          created_at: new Date(Date.now() - 14000000).toISOString(),
+          parent_id: "g2",
+          tier: 2
+        },
+        {
+          id: "g5",
+          dump_id: "mock",
+          text: "Запустить синдикат / инвест-клуб",
+          category: "goal",
+          timeline: null,
+          completed: false,
+          created_at: new Date(Date.now() - 12000000).toISOString(),
+          parent_id: "g3",
+          tier: 3
         }
       ];
       saveLocalItems(items);
@@ -190,11 +245,33 @@ export async function getCurrentTask(): Promise<Item | null> {
   return data;
 }
 
+// Helper to recursively uncomplete descendant items in real-time
+async function recursiveUncomplete(parentId: string, allItems: Item[]): Promise<Item[]> {
+  const children = allItems.filter((i) => i.parent_id === parentId);
+  let updatedItems = [...allItems];
+  
+  for (const child of children) {
+    if (child.completed) {
+      updatedItems = updatedItems.map((i) => i.id === child.id ? { ...i, completed: false } : i);
+      
+      if (!isMock) {
+        await supabase.from("items").update({ completed: false }).eq("id", child.id);
+      }
+      
+      updatedItems = await recursiveUncomplete(child.id, updatedItems);
+    }
+  }
+  return updatedItems;
+}
+
 export async function completeItem(id: string, completed: boolean = true): Promise<void> {
   if (isMock) {
-    const items = getLocalItems();
-    const updated = items.map(i => i.id === id ? { ...i, completed } : i);
-    saveLocalItems(updated);
+    let items = getLocalItems();
+    items = items.map(i => i.id === id ? { ...i, completed } : i);
+    if (!completed) {
+      items = await recursiveUncomplete(id, items);
+    }
+    saveLocalItems(items);
     return;
   }
 
@@ -204,6 +281,65 @@ export async function completeItem(id: string, completed: boolean = true): Promi
     .eq("id", id);
 
   if (error) throw error;
+
+  if (!completed) {
+    const { data: allItems } = await supabase.from("items").select("*");
+    if (allItems) {
+      await recursiveUncomplete(id, allItems);
+    }
+  }
+}
+
+export async function createRoadmapNode(text: string, tier: number, parentId: string | null): Promise<Item> {
+  const newItem = {
+    dump_id: isMock ? "mock" : "00000000-0000-0000-0000-000000000000",
+    text,
+    category: "goal" as const,
+    timeline: null,
+    completed: false,
+    parent_id: parentId,
+    tier
+  };
+
+  if (isMock) {
+    const createdItem: Item = {
+      ...newItem,
+      id: Math.random().toString(36).substring(2, 11),
+      created_at: new Date().toISOString()
+    };
+    const items = getLocalItems();
+    saveLocalItems([createdItem, ...items]);
+    return createdItem;
+  }
+
+  // Get first dump or insert a dummy dump to avoid reference constraint
+  let dumpId: string;
+  const { data: dumps, error: dumpsError } = await supabase.from("dumps").select("id").limit(1);
+  if (dumpsError) throw dumpsError;
+  
+  if (dumps && dumps.length > 0) {
+    dumpId = dumps[0].id;
+  } else {
+    const { data: newDump, error: newDumpError } = await supabase
+      .from("dumps")
+      .insert([{ raw_text: "Roadmap Node Creation" }])
+      .select()
+      .single();
+    if (newDumpError) throw newDumpError;
+    dumpId = newDump.id;
+  }
+
+  const { data, error } = await supabase
+    .from("items")
+    .insert([{
+      ...newItem,
+      dump_id: dumpId
+    }])
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
 }
 
 export async function deleteItem(id: string): Promise<void> {

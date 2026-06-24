@@ -1,10 +1,10 @@
 import { useNavigate, useLocation } from "react-router";
 import { useEffect, useRef, useState, useCallback } from "react";
-import { CircleDot, Plus, Layers } from "lucide-react";
+import { CircleDot, Plus, Layers, Network } from "lucide-react";
 
-const icons = [CircleDot, Plus, Layers];
-const routes = ["/", "/dump", "/backlog"];
-const labels = ["Фокус", "Поток", "Бэклог"];
+const icons = [CircleDot, Plus, Layers, Network];
+const routes = ["/", "/dump", "/backlog", "/roadmap"];
+const labels = ["Фокус", "Поток", "Бэклог", "Роадмап"];
 
 export function BottomNav() {
   const navigate = useNavigate();
@@ -56,7 +56,7 @@ export function BottomNav() {
       const tabWidth = tabs[0]?.getBoundingClientRect().width || 0;
       const dx = e.clientX - startX.current;
       const base = activeIndex * tabWidth;
-      const max = 2 * tabWidth;
+      const max = 3 * tabWidth;
       const x = Math.max(0, Math.min(max, base + dx));
       pill.style.transform = `translateX(${x}px)`;
     }
@@ -69,7 +69,7 @@ export function BottomNav() {
       const tabWidth = tabs[0]?.getBoundingClientRect().width || 0;
       const matrix = new DOMMatrix(getComputedStyle(pill).transform);
       const closest = Math.round(matrix.m41 / tabWidth);
-      const idx = Math.max(0, Math.min(2, closest));
+      const idx = Math.max(0, Math.min(3, closest));
       setActiveIndex(idx);
       navigate(routes[idx]);
     }
@@ -107,7 +107,7 @@ export function BottomNav() {
         >
           <div
             ref={pillRef}
-            className="absolute top-1 bottom-1 left-1 w-[calc(33.333%-0.25rem)] bg-[#E0664C] rounded-xl cursor-grab z-0 shadow-[0_2px_8px_rgba(224,102,76,0.3)]"
+            className="absolute top-1 bottom-1 left-1 w-[calc(25%-0.25rem)] bg-[#E0664C] rounded-xl cursor-grab z-0 shadow-[0_2px_8px_rgba(224,102,76,0.3)]"
             style={{ willChange: "transform", transition: "transform 300ms cubic-bezier(0.165,0.84,0.44,1)" }}
           />
           {icons.map((Icon, i) => (
